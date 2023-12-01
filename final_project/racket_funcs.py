@@ -38,6 +38,8 @@ class Racket():
 
         self.lamb = 20
         self.q  = self.q0
+        self.p = self.p0
+        self.R = self.R0
 
     # Declare the joint names.
     def jointnames(self):
@@ -58,6 +60,12 @@ class Racket():
             # if ball hit
             self.state = state.TOINIT
             self.last_time = t
+            
+    def get_position(self):
+        return self.p
+
+    def get_orientation(self):
+        return self.R
 
     # Evaluate at the given time.  This was last called (dt) ago.
     def evaluate(self, t, dt):
@@ -114,6 +122,8 @@ class Racket():
             
             # Update
             self.q = q
+            self.p = p
+            self.R = R
             
             # TODO Add secondary tasks 
 

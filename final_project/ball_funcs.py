@@ -71,6 +71,12 @@ class Ball(Node):
         # TODO
         return None
 
+    def get_position(self):
+        return self.p
+
+    def get_direction(self):
+        return self.v/np.linalg.norm(self.v)
+
     # Update - send a new joint command every time step.
     def update(self, t, dt):
         # Integrate the velocity, then the position.

@@ -7,11 +7,6 @@ from sensor_msgs.msg    import JointState
 from final_project.ball_funcs      import Ball
 from final_project.racket_funcs   import Racket
 
-
-# TODO generate target -> to racket
-# TODO check if ball hit target -> to ball (possibly delete)
-
-
 #
 #   Trajectory Generator Node Class
 #
@@ -60,9 +55,7 @@ class GeneratorNode(Node):
                                (self.dt, rate))
         
         # PROJECT SPECIFIC ATTRIBUTES
-        
-    def gen_target(self):
-        return None
+        self.target = None
 
     # Shutdown
     def shutdown(self):
@@ -83,7 +76,11 @@ class GeneratorNode(Node):
             self.get_logger().info("Stopping: " + self.future.result())
         else:
             self.get_logger().info("Stopping: Interrupted")
-
+            
+    def generate_target(self):
+        # TODO generate target position in space
+        # TODO update target to racket
+        return None
 
     # Update - send a new joint command every time step.
     def update(self):
@@ -93,8 +90,10 @@ class GeneratorNode(Node):
 
         # Determine the corresponding ROS time (seconds since 1970).
         now = self.start + rclpy.time.Duration(seconds=self.t)
+        
+        rac_p = self.racket.get_position()
 
-        self.ball.update(self.t, self.dt)
+        self.ball.update(self.t, self.dt, rac_p)
         # Compute the desired joint positions and velocities for this time.
         desired = self.racket.evaluate(self.t, self.dt)
         if desired is None:
