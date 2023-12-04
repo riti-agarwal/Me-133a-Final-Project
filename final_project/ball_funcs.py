@@ -9,7 +9,7 @@ from std_msgs.msg               import ColorRGBA
 from visualization_msgs.msg     import Marker
 from visualization_msgs.msg     import MarkerArray
 
-from final_project.TransformHelpers     import *
+from demos.TransformHelpers     import *
 
 
 class Ball(Node):
@@ -77,8 +77,9 @@ class Ball(Node):
     def get_direction(self):
         return self.v/np.linalg.norm(self.v)
 
+
     # Update - send a new joint command every time step.
-    def update(self, t, dt):
+    def update(self, t, dt, rac_p, rac_orientation_matrix):
         # Integrate the velocity, then the position.
         self.v += dt * self.a
         self.p += dt * self.v
@@ -107,21 +108,35 @@ class Ball(Node):
             self.p[0, 0] = np.sign(self.p[0, 0]) * (self.side / 2.0 - self.radius)
             self.v[0, 0] *= -1.0
 
-
-        # FOR RACQUET COLLISION - NEEDS POSITION OF TENNIS RACQUET
-
-        # # racket_collision_distance- how close ball needs to be to tennis racket for a collision to be detected. 
-        # # used as safety margin so collision is detected even if the ball and racket are not perfectly aligned.
-        # racket_collision_distance = 0.05  
-        # CHANGE direction_to_racket by also using the orientation of the racket
-        # if np.linalg.norm(self.p - self.rac_p) < self.radius + racket_collision_distance:
+        # if np.linalg.norm(self.p - rac_p) < self.radius + racket_collision_distance:
         #     # Bounce back from the tennis racket
-        #     direction_to_racket = (self.rac_p - self.p) / np.linalg.norm(self.rac_p - self.p)
-        #     self.p = self.rac_p - (self.radius + racket_collision_distance) * direction_to_racket
+        #     print("hello world")
+        #     direction_to_racket = (rac_p - self.p) / np.linalg.norm(rac_p - self.p)
+        #     self.p = rac_p - (self.radius + racket_collision_distance) * direction_to_racket
         #     self.v = -self.v + 2 * np.dot(self.v.T, direction_to_racket) * direction_to_racket
+
+        # racket_collision_distance - how close ball needs to be to tennis racket for a collision to be detected.
+        # used as a safety margin so a collision is detected even if the ball and racket are not perfectly aligned.
+        racket_collision_distance = 0.2 # can be changed to 0.05 
+
+        # Check for a collision with the tennis racket
+        if np.linalg.norm(self.p - rac_p) < self.radius + racket_collision_distance:
+            print ("collision happened")
+            # Bounce back from the tennis racket
+            # self.p = rac_p + np.dot(rac_orientation_matrix, np.array([[0], [0], [-self.radius - racket_collision_distance]]))
+            # self.v = -self.v + 2 * np.dot(self.v.T, direction_to_racket) * direction_to_racket
+            relative_position = rac_p - self.p
+            collision_normal = np.dot(rac_orientation_matrix.T, relative_position)
+            collision_normal = collision_normal / np.linalg.norm(collision_normal)
+            reflection_direction = - self.v + 2 * np.dot(self.v.T, collision_normal) * collision_normal
+            self.v = reflection_direction
+            self.p = rac_p - (self.radius + racket_collision_distance) * collision_normal
+
 
         # Update the message and publish.
         now = self.start + Duration(seconds=t)
         self.marker.header.stamp  = now.to_msg()
         self.marker.pose.position = Point_from_p(self.p)
         self.pub.publish(self.mark)
+
+
