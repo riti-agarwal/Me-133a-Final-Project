@@ -4,8 +4,8 @@ import numpy as np
 from asyncio            import Future
 from rclpy.node         import Node
 from sensor_msgs.msg    import JointState
-from hw6code.ball_funcs      import Ball
-from hw6code.racket_funcs   import Racket
+from final_project.ball_funcs      import Ball
+from final_project.racket_funcs   import Racket
 
 
 

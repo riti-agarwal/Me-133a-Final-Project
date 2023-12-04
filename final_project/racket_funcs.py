@@ -34,7 +34,7 @@ class Racket():
         
         self.duration = 2.5
         self.last_time = 0
-        self.state = state.TOTARGET
+        self.state = state.WAITINGTARGET
 
         self.lamb = 20
         self.q  = self.q0
@@ -47,19 +47,21 @@ class Racket():
         return ['theta1', 'theta2', 'theta3', 'theta4', 'theta5', 'theta6']
     
     def gettarget(self):
-        # TODO
+        # TODO init w y = 0
+        # TODO within ball trajectory
         # calculate normal vector
         return None
     
     def checkwaiting(self, t):
-        if self.state == state.WAITINGINIT:
-            # if target changed
-            self.state = state.TOTARGET
-            self.last_time = t
-        elif self.state == state.WAITINGTARGET:
-            # if ball hit
-            self.state = state.TOINIT
-            self.last_time = t
+        # if self.state == state.WAITINGINIT:
+        #     # if target changed
+        #     self.state = state.TOTARGET
+        #     self.last_time = t
+        # elif self.state == state.WAITINGTARGET:
+        #     # if ball hit
+        #     self.state = state.TOINIT
+        #     self.last_time = t
+        return None
             
     def get_position(self):
         return self.p
