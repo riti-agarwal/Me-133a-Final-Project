@@ -19,7 +19,8 @@ class state(Enum):
     WAITINGINIT = 4
 
 class Racket():
-    def __init__(self, node):
+    def __init__(self, node, goal = None):
+        self.goal = goal
         # Set up the kinematic chain object.
         self.chain = KinematicChain(node, 'world', 'tip', self.jointnames())
         
@@ -31,6 +32,8 @@ class Racket():
         # TODO from ball trajectory, get position and normal orientation
         self.p_target = np.array([0.5, 0.5, 0.15]).reshape((-1,1))
         self.r_target = Reye() @ Rotx(-pi/2) @ Roty(-pi/2)
+        
+        self.target_changed = False
         
         self.duration = 2.5
         self.last_time = 0
@@ -46,28 +49,35 @@ class Racket():
         # Return a list of joint names FOR THE EXPECTED URDF!
         return ['theta1', 'theta2', 'theta3', 'theta4', 'theta5', 'theta6']
     
-    def gettarget(self):
-        # TODO init w y = 0
+    def set_racket_target(self, ball):
+        ball_p, ball_d = ball.get_pd_at_y(given_y = 0)
+        self.p_target = ball_p
+        if self.goal == None:
+            self.r_target = self.R0
+        else:
+            to_goal = self.R0 # TODO get vector to goal
+            # TODO get vector normal to goal and ball to get r_target
         # TODO within ball trajectory
-        # calculate normal vector
-        return None
+        self.target_changed = True
     
     def checkwaiting(self, t):
-        # if self.state == state.WAITINGINIT:
-        #     # if target changed
-        #     self.state = state.TOTARGET
-        #     self.last_time = t
-        # elif self.state == state.WAITINGTARGET:
-        #     # if ball hit
-        #     self.state = state.TOINIT
-        #     self.last_time = t
-        return None
+        if self.state == state.WAITINGINIT and self.target_changed:
+            self.state = state.TOTARGET
+            self.last_time = t
+            self.target_changed = False
+        elif self.state == state.WAITINGTARGET:
+            # if ball hit
+            self.state = state.TOINIT
+            self.last_time = t
             
     def get_position(self):
         return self.p
 
     def get_orientation(self):
         return self.R
+    
+    def set_goal(self, goal):
+        self.goal = goal
 
     # Evaluate at the given time.  This was last called (dt) ago.
     def evaluate(self, t, dt):
