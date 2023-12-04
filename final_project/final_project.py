@@ -75,7 +75,9 @@ class GeneratorNode(Node):
             self.get_logger().info("Stopping: " + self.future.result())
         else:
             self.get_logger().info("Stopping: Interrupted")
-
+            
+    def set_racket_target(self):
+        self.racket.set_target(self.ball)
 
     # Update - send a new joint command every time step.
     def update(self):

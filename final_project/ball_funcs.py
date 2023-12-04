@@ -9,8 +9,7 @@ from std_msgs.msg               import ColorRGBA
 from visualization_msgs.msg     import Marker
 from visualization_msgs.msg     import MarkerArray
 
-from demos.TransformHelpers     import *
-
+from final_project.TransformHelpers     import *
 
 class Ball(Node):
     # Initialization.
@@ -80,12 +79,18 @@ class Ball(Node):
 
     def get_position(self):
         return self.p
-
+    
     def get_direction(self):
-        return self.v/np.linalg.norm(self.v)
-
-    def get_pd_at_y(self, y = 0):
-        return None
+        return get_direction_from_v(self.v)
+    
+    def get_pd_at_y(self, given_y = 0):
+        # p = p0 + v0t + 1/2 a t^2
+        # given_y = y0 + vy0 t
+        t = (given_y - self.init_p[1, 0]) / self.init_v[1, 0]
+        v = self.init_v + self.a * t
+        d = get_direction_from_v(v)
+        p = self.init_p + self.init_v * t + self.a * (t ** 2) / 2
+        return p, d
 
     # Update - send a new joint command every time step.
     def update(self, t, dt, rac_p, rac_orientation_matrix):

@@ -291,6 +291,10 @@ def Pose_from_T(T):
 def Transform_from_T(T):
     return Transform(translation = Vector3_from_p(p_from_T(T)),
                      rotation    = Quaternion_from_R(R_from_T(T)))
+    
+# NEW DEFINED
+def get_direction_from_v(v):
+    return v / np.linalg.norm(v)
 
 
 #
