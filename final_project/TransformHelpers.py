@@ -80,6 +80,7 @@ from urdf_parser_py.urdf        import Robot
 from geometry_msgs.msg          import Point, Vector3
 from geometry_msgs.msg          import Quaternion
 from geometry_msgs.msg          import Pose, Transform
+from tf.transformation          import quaternion_from_euler
 
 
 #
@@ -180,6 +181,9 @@ def R_from_T(T):
 #
 #   Convert to/from a rotation matrix.
 #
+def quat_from_euler(euler):
+    return quaternion_from_euler(euler[0], euler[1], euler[2])
+
 def R_from_quat(quat):
     q     = quat.flatten()
     norm2 = np.inner(q,q)
