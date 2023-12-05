@@ -53,11 +53,13 @@ class Racket():
         ball_p, ball_d, t = ball.get_pd_at_y(given_y = 0)
         self.p_target = ball_p
         if self.goal.all() == None:
-            self.r_target = self.ball_d
+            # self.r_target = ball_d
+            self.r_target = self.R0
         else:
             to_goal = self.goal - ball_p
             r_vec = cross(to_goal, ball_d)
-            self.r_target = R_from_quat(quat_from_euler(r_vec))
+            # self.r_target = R_from_quat(quat_from_euler(r_vec))
+            self.r_target = self.R0
         # TODO within ball trajectory
         self.target_changed = True
         # self.duration = t

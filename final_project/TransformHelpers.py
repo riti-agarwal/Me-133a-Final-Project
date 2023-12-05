@@ -80,7 +80,7 @@ from urdf_parser_py.urdf        import Robot
 from geometry_msgs.msg          import Point, Vector3
 from geometry_msgs.msg          import Quaternion
 from geometry_msgs.msg          import Pose, Transform
-from tf.transformations          import *
+# from tf.transformations          import *
 
 
 #

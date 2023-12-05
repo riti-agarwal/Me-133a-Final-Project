@@ -17,12 +17,6 @@ class Ball(Node):
         # Initialize the node, naming it as specified
         super().__init__(name)
 
-        # Prepare the publisher (latching for new subscribers).
-        quality = QoSProfile(durability=DurabilityPolicy.TRANSIENT_LOCAL,
-                             depth=1)
-        self.pub = self.create_publisher(
-            MarkerArray, '/visualization_marker_array', quality)
-
         # Initialize the ball position, velocity, set the acceleration.
         self.radius = 0.033
         self.side = 2.0 # distance between bounces
@@ -45,7 +39,7 @@ class Ball(Node):
         self.marker.header.stamp     = self.get_clock().now().to_msg()
         self.marker.action           = Marker.ADD
         self.marker.ns               = "point"
-        self.marker.id               = 1
+        self.marker.id               = 2
         self.marker.type             = Marker.SPHERE
         self.marker.pose.orientation = Quaternion()
         self.marker.pose.position    = Point_from_p(self.p)
@@ -54,8 +48,8 @@ class Ball(Node):
         # a = 0.8 is slightly transparent!
 
         # Create the marker array message.
-        self.mark = MarkerArray()
-        self.mark.markers.append(self.marker)
+        # self.mark = MarkerArray()
+        # self.mark.markers.append(self.marker)
 
         # Set up the timing so (t=0) will occur in the first update
         # cycle (dt) from now.
@@ -150,6 +144,6 @@ class Ball(Node):
         now = self.start + Duration(seconds=t)
         self.marker.header.stamp  = now.to_msg()
         self.marker.pose.position = Point_from_p(self.p)
-        self.pub.publish(self.mark)
+        # self.pub.publish(self.mark)
 
 

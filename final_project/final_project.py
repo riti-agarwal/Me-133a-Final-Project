@@ -4,8 +4,17 @@ import numpy as np
 from asyncio            import Future
 from rclpy.node         import Node
 from sensor_msgs.msg    import JointState
+from std_msgs.msg               import ColorRGBA
+from visualization_msgs.msg     import Marker
+from visualization_msgs.msg     import MarkerArray
+
+from rclpy.qos                  import QoSProfile, DurabilityPolicy
+from rclpy.time                 import Duration
+from geometry_msgs.msg          import Point, Vector3, Quaternion
 from final_project.ball_funcs      import Ball
 from final_project.racket_funcs   import Racket
+
+from final_project.TransformHelpers     import *
 import random
 
 
@@ -43,7 +52,25 @@ class GeneratorNode(Node):
         self.goal = None
 
         # Add a publisher to send the joint commands.
-        self.pub = self.create_publisher(JointState, '/joint_states', 10)
+        self.pub_urdf = self.create_publisher(JointState, '/joint_states', 10)
+        quality = QoSProfile(durability=DurabilityPolicy.TRANSIENT_LOCAL,
+                             depth=1)
+        self.pub_mark = self.create_publisher(
+            MarkerArray, '/visualization_marker_array', quality)
+        self.mark = MarkerArray()
+        
+        diam = 0.1
+        self.goal_marker = Marker()
+        self.goal_marker.header.frame_id  = "world"
+        self.goal_marker.header.stamp     = self.get_clock().now().to_msg()
+        self.goal_marker.action           = Marker.ADD
+        self.goal_marker.ns               = "point"
+        self.goal_marker.id               = 1
+        self.goal_marker.type             = Marker.SPHERE
+        self.goal_marker.pose.orientation = Quaternion()
+        
+        self.goal_marker.scale            = Vector3(x = diam, y = diam, z = diam)
+        self.goal_marker.color            = ColorRGBA(r=1.0, g=0.0, b=0.0, a=0.8)
 
         # Wait for a connection to happen.  This isn't necessary, but
         # means we don't start until the rest of the system is ready.
@@ -86,12 +113,19 @@ class GeneratorNode(Node):
     def set_launch_ball(self):
         # create ball and launch
         self.ball = Ball('balldemo', self.start)
+        self.mark.markers.append(self.ball.marker)
         self.racket.set_racket_target(self.ball)
         
     def set_goal(self):
         self.goal = np.array([random.uniform(-self.max_side, self.max_side),
                               random.uniform(-self.max_side, self.max_side),
-                              random.uniform(-self.max_side, self.max_side)]).reshape((3,1))
+                              random.uniform(0, self.max_side)]).reshape((3,1))
+        
+        self.goal_marker.pose.position    = Point_from_p(self.goal)
+        self.mark.markers.append(self.goal_marker)
+        
+        # TODO when ball hits marker get rid of marker (remove from list)
+        
         self.racket.set_goal(self.goal)
         print(self.goal)
 
@@ -136,7 +170,9 @@ class GeneratorNode(Node):
         cmdmsg.name         = self.jointnames   # List of joint names
         cmdmsg.position     = q                 # List of joint positions
         cmdmsg.velocity     = qdot              # List of joint velocities
-        self.pub.publish(cmdmsg)
+        self.pub_urdf.publish(cmdmsg)
+        
+        self.pub_mark.publish(self.mark)
 
 
 #
