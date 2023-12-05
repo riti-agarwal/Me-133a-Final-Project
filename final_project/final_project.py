@@ -149,10 +149,11 @@ class GeneratorNode(Node):
         now = self.start + rclpy.time.Duration(seconds=self.t)
 
         rac_p = self.racket.get_position()
+        rac_radius = self.racket.get_radius()
         rac_orientation_matrix = self.racket.get_orientation()
 
         if self.ball != None:
-            self.ball.update(self.t, self.dt, rac_p, rac_orientation_matrix)
+            self.ball.update(self.t, self.dt, rac_p, rac_orientation_matrix, rac_radius)
             self.check_goal()
         else:
             self.launch_ball()

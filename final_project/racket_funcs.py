@@ -39,6 +39,7 @@ class Racket():
         self.last_time = 0
         self.state = state.WAITINGINIT
 
+        self.rac_radius = 0.2
         self.lamb = 20
         self.q  = self.q0
         self.p = self.p0
@@ -83,6 +84,9 @@ class Racket():
     
     def set_goal(self, goal):
         self.goal = goal
+
+    def get_radius(self):
+        return self.rac_radius
 
     # Evaluate at the given time.  This was last called (dt) ago.
     def evaluate(self, t, dt):

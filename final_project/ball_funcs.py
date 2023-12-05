@@ -86,8 +86,37 @@ class Ball(Node):
         p = self.init_p + self.init_v * t + self.a * (t ** 2) / 2
         return p, d, t
 
+    def get_collision_normal(self, rac_p, rac_orientation_matrix, rac_radius):
+        ux = (rac_orientation_matrix[:,0]).reshape(3,1)
+        uy = (rac_orientation_matrix[:,1]).reshape(3,1)
+        uz = (rac_orientation_matrix[:,2]).reshape(3,1)
+        ux = (ux / np.linalg.norm(ux))
+        uy = (uy / np.linalg.norm(uy))
+        uz = (uz / np.linalg.norm(uz))
+        d = self.p - rac_p
+        d = d.flatten()
+        dx = np.dot(d, ux.flatten().T)
+        if(dx > rac_radius):
+            dx = rac_radius
+        if dx < -rac_radius:
+            dx = -rac_radius
+        dy = np.dot(d, uy.flatten().T)
+        if(dy > rac_radius):
+            dy = rac_radius
+        if dy < -rac_radius:
+            dy = -rac_radius
+        dz = np.dot(d, uz.flatten().T)
+        dz = 0
+        print(ux.shape)
+        closest_point = rac_p + (dx * ux) + (dy * uy) + (dz * uz)
+        collision_norm = (self.p - closest_point) 
+        print(closest_point)
+        print(collision_norm)
+        collision_norm = collision_norm / np.linalg.norm(collision_norm)
+        return collision_norm.reshape(1,3)
+
     # Update - send a new joint command every time step.
-    def update(self, t, dt, rac_p, rac_orientation_matrix):
+    def update(self, t, dt, rac_p, rac_orientation_matrix, rac_radius):
         # Integrate the velocity, then the position.
         self.v += dt * self.a
         self.p += dt * self.v
@@ -117,26 +146,18 @@ class Ball(Node):
             self.v[0, 0] *= -1.0
             # print("wall collision")
 
-        # if np.linalg.norm(self.p - rac_p) < self.radius + racket_collision_distance:
-        #     # Bounce back from the tennis racket
-        #     print("hello world")
-        #     direction_to_racket = (rac_p - self.p) / np.linalg.norm(rac_p - self.p)
-        #     self.p = rac_p - (self.radius + racket_collision_distance) * direction_to_racket
-        #     self.v = -self.v + 2 * np.dot(self.v.T, direction_to_racket) * direction_to_racket
-
-       
-
         # Check for a collision with the tennis racket
         if np.linalg.norm(self.p - rac_p) < self.radius + self.racket_dist:
-            # print ("collision happened")
-            # Bounce back from the tennis racket
-            # self.p = rac_p + np.dot(rac_orientation_matrix, np.array([[0], [0], [-self.radius - racket_collision_distance]]))
-            # self.v = -self.v + 2 * np.dot(self.v.T, direction_to_racket) * direction_to_racket
-            relative_position = rac_p - self.p
-            collision_normal = np.dot(rac_orientation_matrix.T, relative_position)
-            collision_normal = collision_normal / np.linalg.norm(collision_normal)
-            reflection_direction = - self.v + 2 * np.dot(self.v.T, collision_normal) * collision_normal
-            self.v = reflection_direction
+            # relative_position = rac_p - self.p
+            # collision_normal = np.dot(rac_orientation_matrix.T, relative_position)
+            # collision_normal = collision_normal / np.linalg.norm(collision_normal)
+            # reflection_direction = - self.v + 2 * np.dot(self.v.T, collision_normal) * collision_normal
+            # self.v = reflection_direction
+            # self.p = rac_p - (self.radius + self.racket_dist) * collision_normal
+            print ("collision happened")
+            collision_normal = self.get_collision_normal(rac_p, rac_orientation_matrix, rac_radius)
+            reflection_direction = - self.v + 2 * np.dot(self.v.flatten(), collision_normal.flatten()) * collision_normal
+            self.v = - reflection_direction
             self.p = rac_p - (self.radius + self.racket_dist) * collision_normal
 
 
