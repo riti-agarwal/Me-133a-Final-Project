@@ -128,6 +128,15 @@ class GeneratorNode(Node):
         
         self.racket.set_goal(self.goal)
         print(self.goal)
+        
+    def check_goal(self):
+        # TODO need to check
+        ball_p = self.ball.get_position()
+        e = 0.01
+        if np.linalg.norm(self.goal - ball_p) < e:
+            self.mark.markers.remove(self.goal_marker)
+            self.ball.shutdown()
+            self.ball = None
 
     # Update - send a new joint command every time step.
     def update(self):
@@ -142,6 +151,7 @@ class GeneratorNode(Node):
         rac_orientation_matrix = self.racket.get_orientation()
 
         self.ball.update(self.t, self.dt, rac_p, rac_orientation_matrix)
+        self.check_goal()
         # Compute the desired joint positions and velocities for this time.
         desired = self.racket.evaluate(self.t, self.dt)
         if desired is None:
