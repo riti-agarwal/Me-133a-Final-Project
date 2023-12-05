@@ -88,7 +88,7 @@ class GeneratorNode(Node):
                                (self.dt, rate))
         
         self.set_goal()
-        self.set_launch_ball()
+        self.launch_ball()
 
     # Shutdown
     def shutdown(self):
@@ -110,7 +110,7 @@ class GeneratorNode(Node):
         else:
             self.get_logger().info("Stopping: Interrupted")
             
-    def set_launch_ball(self):
+    def launch_ball(self):
         # create ball and launch
         self.ball = Ball('balldemo', self.start)
         self.mark.markers.append(self.ball.marker)
@@ -137,6 +137,7 @@ class GeneratorNode(Node):
             self.mark.markers.remove(self.goal_marker)
             self.ball.shutdown()
             self.ball = None
+            return True
 
     # Update - send a new joint command every time step.
     def update(self):
@@ -150,8 +151,11 @@ class GeneratorNode(Node):
         rac_p = self.racket.get_position()
         rac_orientation_matrix = self.racket.get_orientation()
 
-        self.ball.update(self.t, self.dt, rac_p, rac_orientation_matrix)
-        self.check_goal()
+        if self.ball != None:
+            self.ball.update(self.t, self.dt, rac_p, rac_orientation_matrix)
+            self.check_goal()
+        else:
+            self.launch_ball()
         # Compute the desired joint positions and velocities for this time.
         desired = self.racket.evaluate(self.t, self.dt)
         if desired is None:
