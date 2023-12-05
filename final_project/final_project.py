@@ -6,6 +6,7 @@ from rclpy.node         import Node
 from sensor_msgs.msg    import JointState
 from final_project.ball_funcs      import Ball
 from final_project.racket_funcs   import Racket
+import random
 
 
 
@@ -34,9 +35,12 @@ class GeneratorNode(Node):
 
         # Set up a trajectory.
         # self.trajectory = Trajectory(self)
-        self.ball = Ball('balldemo', self.start)
+        self.ball = None
         self.racket = Racket(self)
         self.jointnames = self.racket.jointnames()
+        
+        self.max_side = 2.0
+        self.goal = None
 
         # Add a publisher to send the joint commands.
         self.pub = self.create_publisher(JointState, '/joint_states', 10)
@@ -55,6 +59,9 @@ class GeneratorNode(Node):
         self.timer = self.create_timer(self.dt, self.update)
         self.get_logger().info("Running with dt of %f seconds (%fHz)" %
                                (self.dt, rate))
+        
+        self.set_goal()
+        self.set_launch_ball()
 
     # Shutdown
     def shutdown(self):
@@ -78,12 +85,15 @@ class GeneratorNode(Node):
             
     def set_launch_ball(self):
         # create ball and launch
+        self.ball = Ball('balldemo', self.start)
         self.racket.set_racket_target(self.ball)
         
     def set_goal(self):
-        # get goal location
-        # set racket goal
-        return None
+        self.goal = np.array([random.uniform(-self.max_side, self.max_side),
+                              random.uniform(-self.max_side, self.max_side),
+                              random.uniform(-self.max_side, self.max_side)]).reshape((3,1))
+        self.racket.set_goal(self.goal)
+        print(self.goal)
 
     # Update - send a new joint command every time step.
     def update(self):

@@ -90,7 +90,7 @@ class Ball(Node):
         v = self.init_v + self.a * t
         d = get_direction_from_v(v)
         p = self.init_p + self.init_v * t + self.a * (t ** 2) / 2
-        return p, d
+        return p, d, t
 
     # Update - send a new joint command every time step.
     def update(self, t, dt, rac_p, rac_orientation_matrix):
@@ -121,7 +121,7 @@ class Ball(Node):
             # Bounce back from the side wall
             self.p[0, 0] = np.sign(self.p[0, 0]) * (self.side / 2.0 - self.radius)
             self.v[0, 0] *= -1.0
-            print("wall collision")
+            # print("wall collision")
 
         # if np.linalg.norm(self.p - rac_p) < self.radius + racket_collision_distance:
         #     # Bounce back from the tennis racket
@@ -134,7 +134,7 @@ class Ball(Node):
 
         # Check for a collision with the tennis racket
         if np.linalg.norm(self.p - rac_p) < self.radius + self.racket_dist:
-            print ("collision happened")
+            # print ("collision happened")
             # Bounce back from the tennis racket
             # self.p = rac_p + np.dot(rac_orientation_matrix, np.array([[0], [0], [-self.radius - racket_collision_distance]]))
             # self.v = -self.v + 2 * np.dot(self.v.T, direction_to_racket) * direction_to_racket

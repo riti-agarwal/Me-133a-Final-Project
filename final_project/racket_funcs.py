@@ -37,7 +37,7 @@ class Racket():
         
         self.duration = 2.5
         self.last_time = 0
-        self.state = state.WAITINGTARGET
+        self.state = state.WAITINGINIT
 
         self.lamb = 20
         self.q  = self.q0
@@ -50,15 +50,18 @@ class Racket():
         return ['theta1', 'theta2', 'theta3', 'theta4', 'theta5', 'theta6']
     
     def set_racket_target(self, ball):
-        ball_p, ball_d = ball.get_pd_at_y(given_y = 0)
+        ball_p, ball_d, t = ball.get_pd_at_y(given_y = 0)
         self.p_target = ball_p
-        if self.goal == None:
-            self.r_target = self.R0
+        if self.goal.all() == None:
+            self.r_target = self.ball_d
         else:
-            to_goal = self.R0 # TODO get vector to goal
-            # TODO get vector normal to goal and ball to get r_target
+            to_goal = self.goal - ball_p
+            r_vec = cross(to_goal, ball_d)
+            self.r_target = R_from_quat(quat_from_euler(r_vec))
         # TODO within ball trajectory
         self.target_changed = True
+        # self.duration = t
+        print(self.p_target, self.r_target, self.duration)
     
     def checkwaiting(self, t):
         if self.state == state.WAITINGINIT and self.target_changed:
