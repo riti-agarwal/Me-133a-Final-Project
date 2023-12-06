@@ -54,16 +54,15 @@ class Racket():
         ball_p, ball_d, t = ball.get_pd_at_y(given_y = 0)
         self.p_target = ball_p
         if self.goal.all() == None:
-            # self.r_target = ball_d
-            self.r_target = self.R0
+            self.r_target = Rotx(ball_d[0, 0]) @ Roty(ball_d[1, 0]) @ Rotz(ball_d[2, 0])
         else:
             to_goal = self.goal - ball_p
             r_vec = cross(to_goal, ball_d)
-            # self.r_target = R_from_quat(quat_from_euler(r_vec))
-            self.r_target = self.R0
+            self.r_target = Rotx(r_vec[0, 0]) @ Roty(r_vec[1, 0]) @ Rotz(r_vec[2, 0])
         # TODO within ball trajectory
         self.target_changed = True
         # self.duration = t
+        # self.r_target = self.R0
         print(self.p_target, self.r_target, self.duration)
     
     def checkwaiting(self, t):
@@ -75,6 +74,7 @@ class Racket():
             # if ball hit
             self.state = state.TOINIT
             self.last_time = t
+        print(self.state)
             
     def get_position(self):
         return self.p
