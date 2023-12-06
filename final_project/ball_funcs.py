@@ -117,8 +117,18 @@ class Ball(Node):
             self.v[0, 0] *= -1.0
             # print("wall collision")
 
-        # Check for a collision with the tennis racket
-        if np.linalg.norm(self.p - rac_p) < self.radius + self.racket_dist:
+        # Transform ball position to racket's local coordinates
+        ball_p_local = rac_orientation_matrix.T @ (self.p - rac_p)
+
+        # Calculate the closest point on the racket to the ball
+        # z-axis should be nothing
+        closest_point_on_racket_local = np.clip(ball_p_local, -rac_radius, rac_radius)
+        closest_point_on_racket_local[2] = 0
+
+        # Transform the closest point back to global coordinates
+        closest_point_on_racket_global = rac_orientation_matrix @ closest_point_on_racket_local + rac_p
+        # if np.linalg.norm(self.p - rac_p) < self.radius + racket_collision_distance:
+        if np.linalg.norm(self.p - closest_point_on_racket_global) < self.radius + rac_radius:
             self.v = rac_orientation_matrix @ (np.array([[1, 0, 0], [0, 1, 0], [0, 0, -1]])).reshape(3,3) @ rac_orientation_matrix.T @ self.v
             self.p = self.p + self.v * dt
 

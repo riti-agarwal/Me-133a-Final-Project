@@ -39,7 +39,7 @@ class Racket():
         self.last_time = 0
         self.state = state.WAITINGINIT
 
-        self.rac_radius = 0.2
+        self.rac_radius = 0.1
         self.lamb = 20
         self.q  = self.q0
         self.p = self.p0
