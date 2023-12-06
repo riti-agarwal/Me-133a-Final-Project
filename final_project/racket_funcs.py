@@ -27,7 +27,8 @@ class Racket():
         # Define the various points.
         self.q0 = np.radians(np.array([0, 90, -90, 0, 0, 0]).reshape((-1,1)))
         self.p0 = np.array([0.0, 0.55, 1.0]).reshape((-1,1))
-        self.R0 = Reye() @ Rotx(-pi/2) @ Roty(-pi/2)
+        # self.R0 = Reye() @ Rotx(-pi/2) @ Roty(-pi/2)
+        self.R0 = Reye()
         
         # TODO from ball trajectory, get position and normal orientation
         self.p_target = np.array([0.5, 0.5, 0.15]).reshape((-1,1))
@@ -35,7 +36,7 @@ class Racket():
         
         self.target_changed = False
         
-        self.duration = 2.5
+        self.duration = 0.5
         self.last_time = 0
         self.state = state.WAITINGINIT
 
@@ -57,13 +58,19 @@ class Racket():
             self.r_target = Rotx(ball_d[0, 0]) @ Roty(ball_d[1, 0]) @ Rotz(ball_d[2, 0])
         else:
             to_goal = self.goal - ball_p
-            r_vec = cross(to_goal, ball_d)
-            self.r_target = Rotx(r_vec[0, 0]) @ Roty(r_vec[1, 0]) @ Rotz(r_vec[2, 0])
+            # r_vec = cross(to_goal, ball_d) 
+            des_z = (ball_d + to_goal) / 2
+            print("z", des_z, ball_d, to_goal)
+            curr_x = self.R @ ex()
+            des_y = cross(des_z, curr_x)
+            self.r_target = Rot_from_xyz(x=curr_x, y =des_y, z=des_z)
+            # self.r_target = Rotx(r_vec[0, 0]) @ Roty(r_vec[1, 0]) @ Rotz(r_vec[2, 0])
         # TODO within ball trajectory
         self.target_changed = True
-        # self.duration = t
+        # self.duration = t - 0.1
+        self.duration = 2.5
         # self.r_target = self.R0
-        print(self.p_target, self.r_target, self.duration)
+        print("target", self.p_target, self.r_target, t)
     
     def checkwaiting(self, t):
         if self.state == state.WAITINGINIT and self.target_changed:
@@ -72,9 +79,10 @@ class Racket():
             self.target_changed = False
         elif self.state == state.WAITINGTARGET:
             # if ball hit
-            self.state = state.TOINIT
-            self.last_time = t
-        print(self.state)
+            # self.state = state.TOINIT
+            # self.last_time = t
+            self.state = state.WAITINGTARGET
+        # print(self.state)
             
     def get_position(self):
         return self.p
@@ -96,7 +104,8 @@ class Racket():
             self.checkwaiting(t)
         else:
             if self.state == state.TOTARGET:
-                if t - self.last_time >= self.duration:
+                if t - self.last_time > self.duration:
+                    print("at target", self.p, self.R)
                     self.last_time = t
                     q = self.q
                     qdot = np.zeros((6, 1))
@@ -107,7 +116,7 @@ class Racket():
                 r0 = self.R0
                 rf = self.r_target
             elif self.state == state.TOINIT:
-                if t - self.last_time >= self.duration:
+                if t - self.last_time > self.duration:
                     self.last_time = t
                     q = self.q
                     qdot = np.zeros((6, 1))
@@ -118,11 +127,12 @@ class Racket():
                 r0 = self.r_target
                 rf = self.R0
                 
-            t = fmod(t - self.last_time, self.duration)  
+            # t = fmod(t - self.last_time, self.duration)  
+            t = t - self.last_time
             e = ex() + ey() + ez()
             alpha = pi / 2
             
-            (s0, s0dot) = goto(t, 2.5, 0.0, 1.0)
+            (s0, s0dot) = goto(t, self.duration, 0.0, 1.0)
 
             pd = p0 + (pf - p0) * s0
             vd =      (p0 - pf) * s0dot

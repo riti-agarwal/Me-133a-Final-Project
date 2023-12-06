@@ -148,6 +148,17 @@ def Rote(e, alpha):
     ex = crossmat(e)
     return np.eye(3) + np.sin(alpha) * ex + (1.0-np.cos(alpha)) * ex @ ex
 
+def Rot_from_xyz(x = None, y = None, z=None):
+    if x is None:
+        x = ex()
+    if y is None:
+        y = ey()
+    if z is None:
+        z = np.eye(3, 1)
+    return np.array([[x[0, 0], y[0, 0], z[0, 0]],
+                     [x[1, 0], y[1, 0], z[1, 0]],
+                     [x[2, 0], y[2, 0], z[2, 0]]])
+
 
 #
 #   3x1 Error Vectors

@@ -19,14 +19,17 @@ class Ball(Node):
 
         # Initialize the ball position, velocity, set the acceleration.
         self.radius = 0.033
-        self.side = 2.0 # distance between bounces
+        self.side = 4.0 # distance between bounces
         
-        self.init_p = np.array([0.0, 0.0, self.radius]).reshape((3,1))
-        self.init_v = np.array([1.0, 0.1,  5.0       ]).reshape((3,1))
+        # self.init_p = np.array([0.0, 0.0, self.radius]).reshape((3,1))
+        self.init_p = np.array([0.5, 1.0, 1.0]).reshape((3, 1))
+        # self.init_v = np.array([-1.0, -0.1,  5.0       ]).reshape((3,1))
+        self.init_v = np.array([0.0, -2.0, 0.0]).reshape(3, 1)
 
         self.p = self.init_p
         self.v = self.init_v
-        self.a = np.array([0.0, 0.0, -9.81      ]).reshape((3,1))
+        # self.a = np.array([0.0, 0.0, -9.81      ]).reshape((3,1))
+        self.a = np.array([0.0, 0.0, 0.0]).reshape((3, 1))
         
          # racket_collision_distance - how close ball needs to be to tennis racket for a collision to be detected.
         # used as a safety margin so a collision is detected even if the ball and racket are not perfectly aligned.
@@ -117,6 +120,8 @@ class Ball(Node):
 
     # Update - send a new joint command every time step.
     def update(self, t, dt, rac_p, rac_orientation_matrix, rac_radius):
+        if abs(self.p[1, 0]) < 0.033 :
+            return None
         # Integrate the velocity, then the position.
         self.v += dt * self.a
         self.p += dt * self.v
@@ -145,6 +150,12 @@ class Ball(Node):
             self.p[0, 0] = np.sign(self.p[0, 0]) * (self.side / 2.0 - self.radius)
             self.v[0, 0] *= -1.0
             # print("wall collision")
+            
+        if abs(self.p[1, 0]) + self.radius > self.side / 2.0:
+            # Bounce back from the side wall
+            self.p[1, 0] = np.sign(self.p[1, 0]) * (self.side / 2.0 - self.radius)
+            self.v[1, 0] *= -1.0
+            # print("wall collision")
 
         # Check for a collision with the tennis racket
         if np.linalg.norm(self.p - rac_p) < self.radius + self.racket_dist:
@@ -155,10 +166,10 @@ class Ball(Node):
             # self.v = reflection_direction
             # self.p = rac_p - (self.radius + self.racket_dist) * collision_normal
             print ("collision happened")
-            collision_normal = self.get_collision_normal(rac_p, rac_orientation_matrix, rac_radius)
-            reflection_direction = - self.v + 2 * np.dot(self.v.flatten(), collision_normal.flatten()) * collision_normal
-            self.v = - reflection_direction
-            self.p = rac_p - (self.radius + self.racket_dist) * collision_normal
+            # collision_normal = self.get_collision_normal(rac_p, rac_orientation_matrix, rac_radius)
+            # reflection_direction = - self.v + 2 * np.dot(self.v.flatten(), collision_normal.flatten()) * collision_normal
+            # self.v = - reflection_direction
+            # self.p = rac_p - (self.radius + self.racket_dist) * collision_normal
 
 
         # Update the message and publish.
