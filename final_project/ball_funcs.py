@@ -89,35 +89,6 @@ class Ball(Node):
         p = self.init_p + self.init_v * t + self.a * (t ** 2) / 2
         return p, d, t
 
-    def get_collision_normal(self, rac_p, rac_orientation_matrix, rac_radius):
-        ux = (rac_orientation_matrix[:,0]).reshape(3,1)
-        uy = (rac_orientation_matrix[:,1]).reshape(3,1)
-        uz = (rac_orientation_matrix[:,2]).reshape(3,1)
-        ux = (ux / np.linalg.norm(ux))
-        uy = (uy / np.linalg.norm(uy))
-        uz = (uz / np.linalg.norm(uz))
-        d = self.p - rac_p
-        d = d.flatten()
-        dx = np.dot(d, ux.flatten().T)
-        if(dx > rac_radius):
-            dx = rac_radius
-        if dx < -rac_radius:
-            dx = -rac_radius
-        dy = np.dot(d, uy.flatten().T)
-        if(dy > rac_radius):
-            dy = rac_radius
-        if dy < -rac_radius:
-            dy = -rac_radius
-        dz = np.dot(d, uz.flatten().T)
-        dz = 0
-        print(ux.shape)
-        closest_point = rac_p + (dx * ux) + (dy * uy) + (dz * uz)
-        collision_norm = (self.p - closest_point) 
-        print(closest_point)
-        print(collision_norm)
-        collision_norm = collision_norm / np.linalg.norm(collision_norm)
-        return collision_norm.reshape(1,3)
-
     # Update - send a new joint command every time step.
     def update(self, t, dt, rac_p, rac_orientation_matrix, rac_radius):
         if abs(self.p[1, 0]) < 0.033 :
@@ -157,20 +128,20 @@ class Ball(Node):
             self.v[1, 0] *= -1.0
             # print("wall collision")
 
-        # Check for a collision with the tennis racket
-        if np.linalg.norm(self.p - rac_p) < self.radius + self.racket_dist:
-            # relative_position = rac_p - self.p
-            # collision_normal = np.dot(rac_orientation_matrix.T, relative_position)
-            # collision_normal = collision_normal / np.linalg.norm(collision_normal)
-            # reflection_direction = - self.v + 2 * np.dot(self.v.T, collision_normal) * collision_normal
-            # self.v = reflection_direction
-            # self.p = rac_p - (self.radius + self.racket_dist) * collision_normal
-            print ("collision happened")
-            # collision_normal = self.get_collision_normal(rac_p, rac_orientation_matrix, rac_radius)
-            # reflection_direction = - self.v + 2 * np.dot(self.v.flatten(), collision_normal.flatten()) * collision_normal
-            # self.v = - reflection_direction
-            # self.p = rac_p - (self.radius + self.racket_dist) * collision_normal
+        # Transform ball position to racket's local coordinates
+        ball_p_local = rac_orientation_matrix.T @ (self.p - rac_p)
 
+        # Calculate the closest point on the racket to the ball
+        # z-axis should be nothing
+        closest_point_on_racket_local = np.clip(ball_p_local, -rac_radius, rac_radius)
+        closest_point_on_racket_local[2] = 0
+
+        # Transform the closest point back to global coordinates
+        closest_point_on_racket_global = rac_orientation_matrix @ closest_point_on_racket_local + rac_p
+        # if np.linalg.norm(self.p - rac_p) < self.radius + racket_collision_distance:
+        if np.linalg.norm(self.p - closest_point_on_racket_global) < self.radius + rac_radius:
+            self.v = rac_orientation_matrix @ (np.array([[1, 0, 0], [0, 1, 0], [0, 0, -1]])).reshape(3,3) @ rac_orientation_matrix.T @ self.v
+            self.p = self.p + self.v * dt
 
         # Update the message and publish.
         now = self.start + Duration(seconds=t)
