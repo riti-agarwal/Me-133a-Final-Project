@@ -92,8 +92,8 @@ class Ball(Node):
 
     # Update - send a new joint command every time step.
     def update(self, t, dt, rac_p, rac_orientation_matrix, rac_radius, rac_length):
-        # if abs(self.p[1, 0]) < 0.033 :
-        #     return None
+        if self.p[2, 0] < 0.0 :
+            return None
         # Integrate the velocity, then the position.
         
 
@@ -109,7 +109,7 @@ class Ball(Node):
         closest_point_on_racket_global = rac_orientation_matrix @ closest_point_on_racket_local + rac_p
         # if np.linalg.norm(self.p - rac_p) < self.radius + racket_collision_distance:
         if np.linalg.norm(self.p - closest_point_on_racket_global) < self.radius + rac_length:
-            return None
+            # return None
             self.v = rac_orientation_matrix @ (np.array([[1, 0, 0], [0, 1, 0], [0, 0, -1]])).reshape(3,3) @ rac_orientation_matrix.T @ self.v
             self.p = self.p + self.v * dt
             # print("collision")

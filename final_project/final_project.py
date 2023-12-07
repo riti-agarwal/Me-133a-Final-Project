@@ -122,10 +122,15 @@ class GeneratorNode(Node):
         self.goal_marker.color            = ColorRGBA(r=1.0, g=0.0, b=0.0, a=0.8)
         
         rad = self.ball_radius
-        self.goal = np.array([0.5, 0.0, -1.0]).reshape(3, 1)
+        self.goal = np.array([0.5, 0.0, 0.0]).reshape(3, 1)
         # self.goal = np.array([0.5, 1.5, 1.0]).reshape(3,1)
+        # self.goal = np.array([random.uniform(-self.max_side, self.max_side), 
+        #                       random.uniform(-self.max_side, self.max_side),
+        #                       random.uniform(0.0, self.max_side)]).reshape((3, 1))
         self.goal_marker.pose.position    = Point_from_p(self.goal)
         self.mark.markers.append(self.goal_marker)
+        
+        print("goal: ", self.goal)
         
         # TODO when ball hits marker get rid of marker (remove from list)
         
@@ -161,9 +166,9 @@ class GeneratorNode(Node):
         if self.ball != None:
             self.ball.update(self.t, self.dt, rac_p, rac_orientation_matrix, rac_radius, rac_length)
             self.check_goal()
-        # else:
-        #     self.set_goal()
-        #     self.launch_ball()
+        else:
+            self.set_goal()
+            self.launch_ball()
         # Compute the desired joint positions and velocities for this time.
         desired = self.racket.evaluate(self.t, self.dt)
         if desired is None:

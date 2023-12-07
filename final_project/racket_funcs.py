@@ -42,7 +42,7 @@ class Racket():
 
         self.rac_radius = 0.1
         self.rac_length = 0.01
-        self.lamb = 100
+        self.lamb = 80
         self.q  = self.q0
         self.p = self.p0
         self.R = self.R0
@@ -69,6 +69,7 @@ class Racket():
             des_y = get_direction_from_v(cross(des_z, curr_x))
             self.r_target = Rot_from_xyz(x=curr_x, y =des_y, z=des_z)
             # self.r_target = Rotx(r_vec[0, 0]) @ Roty(r_vec[1, 0]) @ Rotz(r_vec[2, 0])
+            self.p_target = self.p_target + pe(des_z, ball.radius)
         # TODO within ball trajectory
         self.target_changed = True
         self.duration = t - 0.1
