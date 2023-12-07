@@ -122,7 +122,7 @@ class GeneratorNode(Node):
         #                       random.uniform(0, self.max_side)]).reshape((3,1))
         
         rad = 0.033
-        self.goal = np.array([0.5, 1.0, 1.0]).reshape(3, 1)
+        self.goal = np.array([0.0, 1.5, 1.0]).reshape(3, 1)
         self.goal_marker.pose.position    = Point_from_p(self.goal)
         self.mark.markers.append(self.goal_marker)
         

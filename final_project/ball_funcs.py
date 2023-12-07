@@ -91,8 +91,8 @@ class Ball(Node):
 
     # Update - send a new joint command every time step.
     def update(self, t, dt, rac_p, rac_orientation_matrix, rac_radius):
-        if abs(self.p[1, 0]) < 0.033 :
-            return None
+        # if abs(self.p[1, 0]) < 0.033 :
+        #     return None
         # Integrate the velocity, then the position.
         self.v += dt * self.a
         self.p += dt * self.v

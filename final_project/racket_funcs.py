@@ -57,7 +57,7 @@ class Racket():
         if self.goal.all() == None:
             self.r_target = Rotx(ball_d[0, 0]) @ Roty(ball_d[1, 0]) @ Rotz(ball_d[2, 0])
         else:
-            to_goal = self.goal - ball_p
+            to_goal = get_direction_from_v(self.goal - ball_p)
             # r_vec = cross(to_goal, ball_d) 
             des_z = (ball_d + to_goal) / 2
             print("z", des_z, ball_d, to_goal)
@@ -67,8 +67,8 @@ class Racket():
             # self.r_target = Rotx(r_vec[0, 0]) @ Roty(r_vec[1, 0]) @ Rotz(r_vec[2, 0])
         # TODO within ball trajectory
         self.target_changed = True
-        # self.duration = t - 0.1
-        self.duration = 2.5
+        self.duration = t - 0.1
+        # self.duration = 2.5
         # self.r_target = self.R0
         print("target", self.p_target, self.r_target, t)
     

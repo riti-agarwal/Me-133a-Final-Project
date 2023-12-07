@@ -364,7 +364,7 @@ def Rot_from_xyz(x = None, y = None, z=None):
         z = np.eye(3, 1)
     return np.array([[x[0, 0], y[0, 0], z[0, 0]],
                      [x[1, 0], y[1, 0], z[1, 0]],
-                     [x[2, 0], y[2, 0], z[2, 0]]])
+                     [x[2, 0], y[2, 0], z[2, 0]]]).reshape((3,3))
 
 
 #
