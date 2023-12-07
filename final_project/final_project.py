@@ -122,7 +122,8 @@ class GeneratorNode(Node):
         self.goal_marker.color            = ColorRGBA(r=1.0, g=0.0, b=0.0, a=0.8)
         
         rad = self.ball_radius
-        self.goal = np.array([0.5, 1.5, 0.0]).reshape(3, 1)
+        self.goal = np.array([0.5, 0.0, -1.0]).reshape(3, 1)
+        # self.goal = np.array([0.5, 1.5, 1.0]).reshape(3,1)
         self.goal_marker.pose.position    = Point_from_p(self.goal)
         self.mark.markers.append(self.goal_marker)
         
@@ -154,10 +155,11 @@ class GeneratorNode(Node):
 
         rac_p = self.racket.get_position()
         rac_radius = self.racket.get_radius()
+        rac_length = self.racket.get_length()
         rac_orientation_matrix = self.racket.get_orientation()
 
         if self.ball != None:
-            self.ball.update(self.t, self.dt, rac_p, rac_orientation_matrix, rac_radius)
+            self.ball.update(self.t, self.dt, rac_p, rac_orientation_matrix, rac_radius, rac_length)
             self.check_goal()
         # else:
         #     self.set_goal()

@@ -91,19 +91,38 @@ class Ball(Node):
         return p, d, t
 
     # Update - send a new joint command every time step.
-    def update(self, t, dt, rac_p, rac_orientation_matrix, rac_radius):
+    def update(self, t, dt, rac_p, rac_orientation_matrix, rac_radius, rac_length):
         # if abs(self.p[1, 0]) < 0.033 :
         #     return None
         # Integrate the velocity, then the position.
+        
+
+        # Transform ball position to racket's local coordinates
+        ball_p_local = rac_orientation_matrix.T @ (self.p - rac_p)
+
+        # Calculate the closest point on the racket to the ball
+        # z-axis should be nothing
+        closest_point_on_racket_local = np.clip(ball_p_local, -rac_radius, rac_radius)
+        closest_point_on_racket_local[2] = rac_length
+
+        # Transform the closest point back to global coordinates
+        closest_point_on_racket_global = rac_orientation_matrix @ closest_point_on_racket_local + rac_p
+        # if np.linalg.norm(self.p - rac_p) < self.radius + racket_collision_distance:
+        if np.linalg.norm(self.p - closest_point_on_racket_global) < self.radius + rac_length:
+            return None
+            self.v = rac_orientation_matrix @ (np.array([[1, 0, 0], [0, 1, 0], [0, 0, -1]])).reshape(3,3) @ rac_orientation_matrix.T @ self.v
+            self.p = self.p + self.v * dt
+            # print("collision")
+            
         self.v += dt * self.a
         self.p += dt * self.v
 
         # can change this to0 check for collision
         # Check for a bounce - not the change in x velocity is non-physical.
-        if self.p[2,0] < self.radius:
-            self.p[2,0] = self.radius + (self.radius - self.p[2,0])
-            # changing the velocity in the z direction, so velocity is in the other direction
-            self.v[2,0] *= -1.0
+        # if self.p[2,0] < self.radius:
+        #     self.p[2,0] = self.radius + (self.radius - self.p[2,0])
+        #     # changing the velocity in the z direction, so velocity is in the other direction
+        #     self.v[2,0] *= -1.0
             # print("collision1")
             # changing the velocity in the x direction
             # self.v[0,0] *= -1.0   # Change x just for the fun of it!
@@ -129,22 +148,6 @@ class Ball(Node):
             self.p[1, 0] = np.sign(self.p[1, 0]) * (self.side / 2.0 - self.radius)
             self.v[1, 0] *= -1.0
             # print("wall collision")
-
-        # Transform ball position to racket's local coordinates
-        ball_p_local = rac_orientation_matrix.T @ (self.p - rac_p)
-
-        # Calculate the closest point on the racket to the ball
-        # z-axis should be nothing
-        closest_point_on_racket_local = np.clip(ball_p_local, -rac_radius, rac_radius)
-        closest_point_on_racket_local[2] = 0
-
-        # Transform the closest point back to global coordinates
-        closest_point_on_racket_global = rac_orientation_matrix @ closest_point_on_racket_local + rac_p
-        # if np.linalg.norm(self.p - rac_p) < self.radius + racket_collision_distance:
-        if np.linalg.norm(self.p - closest_point_on_racket_global) < self.radius + rac_radius:
-            self.v = rac_orientation_matrix @ (np.array([[1, 0, 0], [0, 1, 0], [0, 0, -1]])).reshape(3,3) @ rac_orientation_matrix.T @ self.v
-            self.p = self.p + self.v * dt
-            # print("collision")
 
         # Update the message and publish.
         now = self.start + Duration(seconds=t)

@@ -41,6 +41,7 @@ class Racket():
         self.state = state.WAITINGINIT
 
         self.rac_radius = 0.1
+        self.rac_length = 0.01
         self.lamb = 100
         self.q  = self.q0
         self.p = self.p0
@@ -57,7 +58,7 @@ class Racket():
         if self.goal.all() == None:
             self.r_target = Rotx(ball_d[0, 0]) @ Roty(ball_d[1, 0]) @ Rotz(ball_d[2, 0])
         else:
-            to_goal = get_direction_from_v(self.goal - ball_p)
+            to_goal = get_direction_from_v(ball_p - self.goal)
             # r_vec = cross(to_goal, ball_d) 
             des_z = (ball_d + to_goal) / 2
             if np.linalg.norm(des_z) == 0:
@@ -98,6 +99,9 @@ class Racket():
 
     def get_radius(self):
         return self.rac_radius
+    
+    def get_length(self):
+        return self.rac_length
 
     # Evaluate at the given time.  This was last called (dt) ago.
     def evaluate(self, t, dt):
