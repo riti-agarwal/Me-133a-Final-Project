@@ -35,6 +35,7 @@ class Racket():
         self.r_target = Reye() @ Rotx(-pi/2) @ Roty(-pi/2)
         
         self.target_changed = False
+        self.ball_hit = False
         
         self.duration = 0.5
         self.last_time = 0
@@ -42,7 +43,7 @@ class Racket():
 
         self.rac_radius = 0.1
         self.rac_length = 0.01
-        self.lamb = 80
+        self.lamb = 100
         self.q  = self.q0
         self.p = self.p0
         self.R = self.R0
@@ -82,11 +83,11 @@ class Racket():
             self.state = state.TOTARGET
             self.last_time = t
             self.target_changed = False
-        elif self.state == state.WAITINGTARGET:
-            # if ball hit
-            # self.state = state.TOINIT
-            # self.last_time = t
-            self.state = state.WAITINGTARGET
+        elif self.state == state.WAITINGTARGET and self.ball_hit:
+            self.state = state.WAITINGINIT
+            self.last_time = t
+            self.ball_hit = False
+            # self.state = state.WAITINGTARGET
         # print(self.state)
             
     def get_position(self):

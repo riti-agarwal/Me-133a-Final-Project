@@ -49,7 +49,7 @@ class GeneratorNode(Node):
         self.racket = Racket(self)
         self.jointnames = self.racket.jointnames()
         
-        self.max_side = 2.0
+        self.max_side = 1.5
         self.goal = None
 
         # Add a publisher to send the joint commands.
@@ -122,11 +122,11 @@ class GeneratorNode(Node):
         self.goal_marker.color            = ColorRGBA(r=1.0, g=0.0, b=0.0, a=0.8)
         
         rad = self.ball_radius
-        self.goal = np.array([0.5, 0.0, 0.0]).reshape(3, 1)
+        # self.goal = np.array([0.5, 1.0, 2.0]).reshape(3, 1)
         # self.goal = np.array([0.5, 1.5, 1.0]).reshape(3,1)
-        # self.goal = np.array([random.uniform(-self.max_side, self.max_side), 
-        #                       random.uniform(-self.max_side, self.max_side),
-        #                       random.uniform(0.0, self.max_side)]).reshape((3, 1))
+        self.goal = np.array([0.5, 
+                              random.uniform(-self.max_side, self.max_side),
+                              random.uniform(0.0, self.max_side)]).reshape((3, 1))
         self.goal_marker.pose.position    = Point_from_p(self.goal)
         self.mark.markers.append(self.goal_marker)
         
@@ -165,7 +165,8 @@ class GeneratorNode(Node):
 
         if self.ball != None:
             self.ball.update(self.t, self.dt, rac_p, rac_orientation_matrix, rac_radius, rac_length)
-            self.check_goal()
+            if self.check_goal():
+                self.racket.ball_hit = True
         else:
             self.set_goal()
             self.launch_ball()
