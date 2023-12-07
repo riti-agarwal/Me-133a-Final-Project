@@ -41,7 +41,7 @@ class Racket():
         self.state = state.WAITINGINIT
 
         self.rac_radius = 0.1
-        self.lamb = 20
+        self.lamb = 100
         self.q  = self.q0
         self.p = self.p0
         self.R = self.R0
@@ -61,8 +61,9 @@ class Racket():
             # r_vec = cross(to_goal, ball_d) 
             des_z = (ball_d + to_goal) / 2
             if np.linalg.norm(des_z) == 0:
-                des_z = ez()
+                des_z = -ey()
             print("z", des_z, ball_d, to_goal)
+            des_z = get_direction_from_v(des_z)
             curr_x = get_direction_from_v(self.R @ ex())
             des_y = get_direction_from_v(cross(des_z, curr_x))
             self.r_target = Rot_from_xyz(x=curr_x, y =des_y, z=des_z)
@@ -70,12 +71,8 @@ class Racket():
         # TODO within ball trajectory
         self.target_changed = True
         self.duration = t - 0.1
-        self.duration = 1.0
         self.checkwaiting(time)
         
-        # self.last_time = time
-        # self.duration = 1.0
-        # self.r_target = self.R0
         print("target", self.p_target, self.r_target, t)
     
     def checkwaiting(self, t):
@@ -133,8 +130,8 @@ class Racket():
                 r0 = self.r_target
                 rf = self.R0
                 
-            # t = fmod(t - self.last_time, self.duration)  
-            t = t - self.last_time
+            t = fmod(t - self.last_time, self.duration)  
+            # t = t - self.last_time
             e = ex() + ey() + ez()
             alpha = pi / 2
             

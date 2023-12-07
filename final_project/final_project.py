@@ -45,6 +45,7 @@ class GeneratorNode(Node):
         # Set up a trajectory.
         # self.trajectory = Trajectory(self)
         self.ball = None
+        self.ball_radius = 0.033
         self.racket = Racket(self)
         self.jointnames = self.racket.jointnames()
         
@@ -58,19 +59,6 @@ class GeneratorNode(Node):
         self.pub_mark = self.create_publisher(
             MarkerArray, '/visualization_marker_array', quality)
         self.mark = MarkerArray()
-        
-        diam = 0.1
-        self.goal_marker = Marker()
-        self.goal_marker.header.frame_id  = "world"
-        self.goal_marker.header.stamp     = self.get_clock().now().to_msg()
-        self.goal_marker.action           = Marker.ADD
-        self.goal_marker.ns               = "point"
-        self.goal_marker.id               = 1
-        self.goal_marker.type             = Marker.SPHERE
-        self.goal_marker.pose.orientation = Quaternion()
-        
-        self.goal_marker.scale            = Vector3(x = diam, y = diam, z = diam)
-        self.goal_marker.color            = ColorRGBA(r=1.0, g=0.0, b=0.0, a=0.8)
 
         # Wait for a connection to happen.  This isn't necessary, but
         # means we don't start until the rest of the system is ready.
@@ -112,7 +100,7 @@ class GeneratorNode(Node):
             
     def launch_ball(self):
         # create ball and launch
-        self.ball = Ball('balldemo', self.start)
+        self.ball = Ball('balldemo', self.start, self.ball_radius)
         self.mark.markers.append(self.ball.marker)
         self.racket.set_racket_target(self.ball, self.t)
         
@@ -120,9 +108,21 @@ class GeneratorNode(Node):
         # self.goal = np.array([random.uniform(-self.max_side, self.max_side),
         #                       random.uniform(-self.max_side, self.max_side),
         #                       random.uniform(0, self.max_side)]).reshape((3,1))
+        self.goal_diam = 0.05
+        self.goal_marker = Marker()
+        self.goal_marker.header.frame_id  = "world"
+        self.goal_marker.header.stamp     = self.get_clock().now().to_msg()
+        self.goal_marker.action           = Marker.ADD
+        self.goal_marker.ns               = "point"
+        self.goal_marker.id               = 1
+        self.goal_marker.type             = Marker.SPHERE
+        self.goal_marker.pose.orientation = Quaternion()
         
-        rad = 0.033
-        self.goal = np.array([0.5, 1.5, 1.0]).reshape(3, 1)
+        self.goal_marker.scale            = Vector3(x = self.goal_diam, y = self.goal_diam, z = self.goal_diam)
+        self.goal_marker.color            = ColorRGBA(r=1.0, g=0.0, b=0.0, a=0.8)
+        
+        rad = self.ball_radius
+        self.goal = np.array([0.5, 1.5, 0.0]).reshape(3, 1)
         self.goal_marker.pose.position    = Point_from_p(self.goal)
         self.mark.markers.append(self.goal_marker)
         
@@ -134,11 +134,13 @@ class GeneratorNode(Node):
     def check_goal(self):
         # TODO need to check
         ball_p = self.ball.get_position()
-        e = 0.01
+        e = self.ball.radius + self.goal_diam / 2
         if np.linalg.norm(self.goal - ball_p) < e:
-            self.mark.markers.remove(self.goal_marker)
+            self.goal_marker.action = Marker.DELETE
+            print("hit goal")
             self.ball.shutdown()
             self.ball = None
+            self.goal = None
             return True
 
     # Update - send a new joint command every time step.
@@ -157,8 +159,9 @@ class GeneratorNode(Node):
         if self.ball != None:
             self.ball.update(self.t, self.dt, rac_p, rac_orientation_matrix, rac_radius)
             self.check_goal()
-        else:
-            self.launch_ball()
+        # else:
+        #     self.set_goal()
+        #     self.launch_ball()
         # Compute the desired joint positions and velocities for this time.
         desired = self.racket.evaluate(self.t, self.dt)
         if desired is None:

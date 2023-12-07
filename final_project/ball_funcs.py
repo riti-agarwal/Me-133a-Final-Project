@@ -13,13 +13,13 @@ from final_project.TransformHelpers     import *
 
 class Ball(Node):
     # Initialization.
-    def __init__(self, name, start):
+    def __init__(self, name, start, radius):
         # Initialize the node, naming it as specified
         super().__init__(name)
 
         # Initialize the ball position, velocity, set the acceleration.
-        self.radius = 0.033
-        self.side = 4.0 # distance between bounces
+        self.radius = radius
+        self.side = 6.0 # distance between bounces
         
         # self.init_p = np.array([0.0, 0.0, self.radius]).reshape((3,1))
         self.init_p = np.array([0.5, 1.0, 1.0]).reshape((3, 1))
@@ -68,6 +68,7 @@ class Ball(Node):
     # Shutdown
     def shutdown(self):
         # Destroy the node, including cleaning up the timer.
+        self.marker.action = Marker.DELETE
         self.destroy_node()
 
     def get_random_path():
@@ -103,6 +104,7 @@ class Ball(Node):
             self.p[2,0] = self.radius + (self.radius - self.p[2,0])
             # changing the velocity in the z direction, so velocity is in the other direction
             self.v[2,0] *= -1.0
+            # print("collision1")
             # changing the velocity in the x direction
             # self.v[0,0] *= -1.0   # Change x just for the fun of it!
 
@@ -142,6 +144,7 @@ class Ball(Node):
         if np.linalg.norm(self.p - closest_point_on_racket_global) < self.radius + rac_radius:
             self.v = rac_orientation_matrix @ (np.array([[1, 0, 0], [0, 1, 0], [0, 0, -1]])).reshape(3,3) @ rac_orientation_matrix.T @ self.v
             self.p = self.p + self.v * dt
+            # print("collision")
 
         # Update the message and publish.
         now = self.start + Duration(seconds=t)
