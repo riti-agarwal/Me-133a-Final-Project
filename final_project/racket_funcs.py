@@ -51,7 +51,7 @@ class Racket():
         # Return a list of joint names FOR THE EXPECTED URDF!
         return ['theta1', 'theta2', 'theta3', 'theta4', 'theta5', 'theta6']
     
-    def set_racket_target(self, ball):
+    def set_racket_target(self, ball, time):
         ball_p, ball_d, t = ball.get_pd_at_y(given_y = 0)
         self.p_target = ball_p
         if self.goal.all() == None:
@@ -60,15 +60,21 @@ class Racket():
             to_goal = get_direction_from_v(self.goal - ball_p)
             # r_vec = cross(to_goal, ball_d) 
             des_z = (ball_d + to_goal) / 2
+            if np.linalg.norm(des_z) == 0:
+                des_z = ez()
             print("z", des_z, ball_d, to_goal)
-            curr_x = self.R @ ex()
-            des_y = cross(des_z, curr_x)
+            curr_x = get_direction_from_v(self.R @ ex())
+            des_y = get_direction_from_v(cross(des_z, curr_x))
             self.r_target = Rot_from_xyz(x=curr_x, y =des_y, z=des_z)
             # self.r_target = Rotx(r_vec[0, 0]) @ Roty(r_vec[1, 0]) @ Rotz(r_vec[2, 0])
         # TODO within ball trajectory
         self.target_changed = True
         self.duration = t - 0.1
-        # self.duration = 2.5
+        self.duration = 1.0
+        self.checkwaiting(time)
+        
+        # self.last_time = time
+        # self.duration = 1.0
         # self.r_target = self.R0
         print("target", self.p_target, self.r_target, t)
     

@@ -114,7 +114,7 @@ class GeneratorNode(Node):
         # create ball and launch
         self.ball = Ball('balldemo', self.start)
         self.mark.markers.append(self.ball.marker)
-        self.racket.set_racket_target(self.ball)
+        self.racket.set_racket_target(self.ball, self.t)
         
     def set_goal(self):
         # self.goal = np.array([random.uniform(-self.max_side, self.max_side),
@@ -122,7 +122,7 @@ class GeneratorNode(Node):
         #                       random.uniform(0, self.max_side)]).reshape((3,1))
         
         rad = 0.033
-        self.goal = np.array([0.0, 1.5, 1.0]).reshape(3, 1)
+        self.goal = np.array([0.5, 1.5, 1.0]).reshape(3, 1)
         self.goal_marker.pose.position    = Point_from_p(self.goal)
         self.mark.markers.append(self.goal_marker)
         
