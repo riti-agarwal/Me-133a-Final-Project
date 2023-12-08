@@ -62,7 +62,8 @@ class Racket():
         return ['theta1', 'theta2', 'theta3', 'theta4', 'theta5', 'theta6']
     
     def set_racket_target(self, ball, time):
-        ball_p, ball_d, t = ball.get_pd_at_y(given_y = 0)
+        # ball_p, ball_d, t = ball.get_pd_at_y(given_y = 0)
+        ball_p, ball_d, t = ball.get_pd_at_dist()
         self.p_target = ball_p
         if self.goal is None:
             self.r_target = Rotx(ball_d[0, 0]) @ Roty(ball_d[1, 0]) @ Rotz(ball_d[2, 0])
@@ -76,6 +77,7 @@ class Racket():
             des_z = get_direction_from_v(des_z)
             
             if np.linalg.norm(self.shoulder - ball_p) > self.link_dist * 0.8:
+                print("norm")
                 des_y = -get_direction_from_v(self.shoulder - ball_p)
                 des_x = get_direction_from_v(cross(des_y, des_z))
             else:
@@ -95,7 +97,7 @@ class Racket():
         # self.duration = 2.5
         self.checkwaiting(time)
         
-        print("target", ball_p, self.p_target, self.r_target, t)
+        print("target", self.p_target, self.r_target, t)
     
     def checkwaiting(self, t):
         if self.state == state.WAITINGINIT and self.target_changed:
@@ -196,15 +198,15 @@ class Racket():
             # theta5: -20 to 20 
             # theta6: -10 to 42 degrees
 
-            weight = 0.5
-            Jwinv = J.T @ np.linalg.pinv(J @ J.T + weight**2 * np.eye(6))
-            qdot = Jwinv @ (V + self.lamb * E)
-            lams = 20 
-            q_desired = np.array([0, -math.radians(30), math.radians(30), 0, 0, 0]).reshape(6,1)
-            q_desired[0][0] = 0
-            qdot_secondary = lams * (q_desired - qlast)
-            qdot_extra = (((np.identity(6) - (Jwinv @ J))) @ qdot_secondary)
-            qdot = Jwinv @ (V + self.lamb * E) + qdot_extra
+            # weight = 0.5
+            # Jwinv = J.T @ np.linalg.pinv(J @ J.T + weight**2 * np.eye(6))
+            # qdot = Jwinv @ (V + self.lamb * E)
+            # lams = 20 
+            # q_desired = np.array([0, -math.radians(30), math.radians(30), 0, 0, 0]).reshape(6,1)
+            # q_desired[0][0] = 0
+            # qdot_secondary = lams * (q_desired - qlast)
+            # qdot_extra = (((np.identity(6) - (Jwinv @ J))) @ qdot_secondary)
+            # qdot = Jwinv @ (V + self.lamb * E) + qdot_extra
 
             # const = 0.5
             # cost_part2 = np.array([self.q[0][0], max(np.abs(self.q[0][0]), self.q[1][0]), 0, 0, 0, 0, 0]).reshape((7, 1))

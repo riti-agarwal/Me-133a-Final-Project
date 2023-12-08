@@ -181,6 +181,7 @@ class GeneratorNode(Node):
         elif self.t - self.last_hit > self.ball_period:
             self.set_goal()
             self.launch_ball()
+        # return
         # Compute the desired joint positions and velocities for this time.
         desired = self.racket.evaluate(self.t, self.dt)
         if desired is None:

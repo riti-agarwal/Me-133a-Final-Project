@@ -24,12 +24,12 @@ class Ball(Node):
         
         # self.init_p = np.array([0.0, 0.0, self.radius]).reshape((3,1))
         # x,y,z random position
-        x_cord = random.uniform(self.radius, 0.75)
-        # x_cord = 0.7
+        x_cord = random.uniform(-1.0, 1.0)
+        # x_cord = 0.5
         # y_cord = random.uniform(self.radius, 1.5)
         y_cord = 1.5
         z_cord = random.uniform(self.radius, 1.0)
-        # z_cord = 0.2
+        # z_cord = 0.6
         self.init_p = np.array([x_cord, y_cord, z_cord]).reshape((3, 1))
         # self.init_p = np.array([0.5, 1.0, 0.3]).reshape((3, 1))
         # self.init_v = np.array([-1.0, -0.1,  5.0       ]).reshape((3,1))
@@ -74,6 +74,7 @@ class Ball(Node):
         # self.create_timer(self.dt, self.update)
         # self.get_logger().info("Running with dt of %f seconds (%fHz)" %
         #                        (self.dt, rate))
+        print("ball init", self.init_p)
 
     # Shutdown
     def shutdown(self):
@@ -99,6 +100,43 @@ class Ball(Node):
         d = get_direction_from_v(v)
         p = self.init_p + self.init_v * t + self.a * (t ** 2) / 2
         return p, d, t
+    
+    # Not considering acceleration
+    def get_pd_at_dist(self, given_dist = 0.7, given_center = np.array([0.0, 0.0, 0.0]).reshape(-1, 1)):
+        # p = p0 + v0t
+        # dist(p - given_center) == given_dist
+        # (p0[0] + v0[0] t - c[0])^2 + ... = gd ^ 2
+        # (p0-c0)^2 + v0^2 t^2 + 2 (p0 - c0) (v0 t) = gd^2
+        # (x- c)^2 ... = 0.4 ^ 2
+        # 
+        p1 = self.init_p
+        if np.linalg.norm(self.init_p - given_center) < given_dist:
+            return self.get_pd_at_y()
+        p2 = self.init_p + self.init_v * 2.0
+        min_d = np.linalg.norm(cross(p2 - p1, p1 - given_center))/np.linalg.norm(p2 - p1)
+        # print("min d", min_d)
+        a = (p1 - given_center)
+        b = (p2 - p1)
+        dot = a[0, 0] * b[0, 0] +  a[1, 0] * b[1, 0] + a[2, 0] * b[2, 0]
+        td = - dot / (np.linalg.norm(p2 - p1) ** 2)
+        p = p1 + td * (p2 - p1)
+        t = (p[1, 0] - self.init_p[1, 0]) / self.init_v[1, 0]
+        if min_d < given_dist:
+            d = min_d
+            dt = 1.0 / 1000
+            while(d < given_dist):
+                t -= dt
+                p = self.init_p + self.init_v * t + self.a * (t ** 2) / 2
+                d = np.linalg.norm(p - given_center)
+            # print("smaller", min_d, d, p, t)
+        # TODO need to generalize
+        v = self.init_v + self.a * t
+        dir = get_direction_from_v(v)
+        # p = self.init_p + self.init_v * t + self.a * (t ** 2) / 2
+        # print("min dist", p, dir, t, np.linalg.norm(p - given_center))
+        return p, dir, t
+        
+        
 
     # Update - send a new joint command every time step.
     def update(self, t, dt, rac_p, rac_orientation_matrix, rac_radius, rac_length):
