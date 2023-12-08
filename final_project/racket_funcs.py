@@ -48,7 +48,7 @@ class Racket():
 
         self.rac_radius = 0.1
         self.rac_length = 0.01
-        self.lamb = 20
+        self.lamb = 70
         self.q  = self.q0
         self.p = self.p0
         self.R = self.R0
