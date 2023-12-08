@@ -171,19 +171,19 @@ class Racket():
             # qdot = np.linalg.pinv(J) @ (V + self.lamb * E)
 
             # This is with smoother singularities, no wanted position of the arm
-            # weight = 0.1
-            # Jwinv = J.T @ np.linalg.pinv(J @ J.T + weight**2 * np.eye(6))
-            # qdot = Jwinv @ (V + self.lamb * E)
-
             weight = 0.1
             Jwinv = J.T @ np.linalg.pinv(J @ J.T + weight**2 * np.eye(6))
             qdot = Jwinv @ (V + self.lamb * E)
-            lams = 50 
-            q_desired = np.array([0, -math.radians(30), math.radians(30), 0, 0, 0]).reshape(6,1)
-            q_prev_modified = np.array([0, qlast[1][0], qlast[2][0], 0, 0, 0]).reshape(6,1)
-            qdot_secondary = lams * (q_desired - q_prev_modified)
-            qdot_extra = (((np.identity(6) - (Jwinv @ J))) @ qdot_secondary)
-            qdot = Jwinv @ (V + self.lamb * E) + qdot_extra
+
+            # weight = 0.1
+            # Jwinv = J.T @ np.linalg.pinv(J @ J.T + weight**2 * np.eye(6))
+            # qdot = Jwinv @ (V + self.lamb * E)
+            # lams = 50 
+            # q_desired = np.array([0, -math.radians(30), math.radians(30), 0, 0, 0]).reshape(6,1)
+            # q_prev_modified = np.array([0, qlast[1][0], qlast[2][0], 0, 0, 0]).reshape(6,1)
+            # qdot_secondary = lams * (q_desired - q_prev_modified)
+            # qdot_extra = (((np.identity(6) - (Jwinv @ J))) @ qdot_secondary)
+            # qdot = Jwinv @ (V + self.lamb * E) + qdot_extra
             
             q = qlast + dt * qdot
             
