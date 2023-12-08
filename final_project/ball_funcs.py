@@ -24,10 +24,12 @@ class Ball(Node):
         
         # self.init_p = np.array([0.0, 0.0, self.radius]).reshape((3,1))
         # x,y,z random position
-        x_cord = random.uniform(self.radius, 0.75)
+        # x_cord = random.uniform(self.radius, 0.75)
+        x_cord = 0.7
         # y_cord = random.uniform(self.radius, 1.5)
         y_cord = 1.5
-        z_cord = random.uniform(self.radius, 1.0)
+        # z_cord = random.uniform(self.radius, 1.0)
+        z_cord = 0.2
         self.init_p = np.array([x_cord, y_cord, z_cord]).reshape((3, 1))
         # self.init_p = np.array([0.5, 1.0, 0.3]).reshape((3, 1))
         # self.init_v = np.array([-1.0, -0.1,  5.0       ]).reshape((3,1))

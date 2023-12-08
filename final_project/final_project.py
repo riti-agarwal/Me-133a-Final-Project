@@ -127,16 +127,16 @@ class GeneratorNode(Node):
         self.goal_marker.color            = ColorRGBA(r=0.0, g=0.0, b=1.0, a=0.8)
         
         rad = self.ball_radius
-        # self.goal = np.array([0.5, 1.0, 2.0]).reshape(3, 1)
+        self.goal = np.array([0.7, 1.7, 0.2]).reshape(3, 1)
         # self.goal = np.array([-0.5, 0.0, 1.0]).reshape(3,1)
 #         self.goal = np.array([[[ 0.82846939],
 #  [-0.5390879 ],
 #  [ 0.36994566]]]).reshape(3,1)
 
         # self.goal = np.array([0.5, 
-        self.goal = np.array([random.uniform(-self.max_side, self.max_side), 
-                              random.uniform(-self.max_side, self.max_side),
-                              random.uniform(0.0, self.max_side)]).reshape((3, 1))
+        # self.goal = np.array([random.uniform(-self.max_side, self.max_side), 
+        #                       random.uniform(-self.max_side, self.max_side),
+        #                       random.uniform(0.0, self.max_side)]).reshape((3, 1))
         self.goal_marker.pose.position    = Point_from_p(self.goal)
         self.mark.markers.append(self.goal_marker)
         

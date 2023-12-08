@@ -86,7 +86,7 @@ class Racket():
             
         # TODO within ball trajectory
         self.target_changed = True
-        self.duration = t / 3.0 * 2.0
+        self.duration = t * (0.75)
         # self.duration = 2.5
         self.checkwaiting(time)
         
@@ -180,9 +180,9 @@ class Racket():
             # qdot = np.linalg.pinv(J) @ (V + self.lamb * E)
 
             # This is with smoother singularities, no wanted position of the arm
-            weight = 0.1
-            Jwinv = J.T @ np.linalg.pinv(J @ J.T + weight**2 * np.eye(6))
-            qdot = Jwinv @ (V + self.lamb * E)
+            # weight = 0.1
+            # Jwinv = J.T @ np.linalg.pinv(J @ J.T + weight**2 * np.eye(6))
+            # qdot = Jwinv @ (V + self.lamb * E)
 
             # weight = 0.1
             # Jwinv = J.T @ np.linalg.pinv(J @ J.T + weight**2 * np.eye(6))
@@ -194,14 +194,21 @@ class Racket():
             # qdot_extra = (((np.identity(6) - (Jwinv @ J))) @ qdot_secondary)
             # qdot = Jwinv @ (V + self.lamb * E) + qdot_extra
             
+            weight = 0.5
+            Jwinv = J.T @ np.linalg.pinv(J @ J.T + weight**2 * np.eye(6))
+            qdot = Jwinv @ (V + self.lamb * E)
+            lams = 20 
+            q_desired = np.array([0, -math.radians(30), math.radians(30), 0, 0, 0]).reshape(6,1)
+            qdot_secondary = lams * (q_desired)
+            qdot_extra = (((np.identity(6) - (Jwinv @ J))) @ qdot_secondary)
+            qdot = Jwinv @ (V + self.lamb * E) + qdot_extra
+            
             q = qlast + dt * qdot
             
             # Update
             self.q = q
             self.p = p
             self.R = R
-            
-            # TODO Add secondary tasks 
 
         # Return the position and velocity as python lists.
         return (q.flatten().tolist(), qdot.flatten().tolist())
