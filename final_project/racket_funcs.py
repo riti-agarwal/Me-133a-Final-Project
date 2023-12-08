@@ -85,7 +85,7 @@ class Racket():
             self.last_time = t
             self.target_changed = False
         elif self.state == state.WAITINGTARGET and self.ball_hit:
-            self.state = state.TOINIT
+            self.state = state.WAITINGINIT
             self.last_time = t
             self.ball_hit = False
             self.duration = self.ball_period
@@ -157,8 +157,13 @@ class Racket():
             J = np.vstack((Jv, Jw))
             V = np.vstack((vd, wd))
             E = np.vstack((ep(pd, p), eR(Rd, R)))
+
+            weight = 0.1
+            # Jwinv = np.linalg.inv((np.transpose(J) @ J) + weight ** 2 * np.identity(6)) @ np.transpose(J)
+            Jwinv = J.T @ np.linalg.pinv(J @ J.T + weight**2 * np.eye(6))
+            qdot = Jwinv @ (V + self.lamb * E)
             
-            qdot = np.linalg.pinv(J) @ (V + self.lamb * E)
+            # qdot = np.linalg.pinv(J) @ (V + self.lamb * E)
             
             q = qlast + dt * qdot
             
