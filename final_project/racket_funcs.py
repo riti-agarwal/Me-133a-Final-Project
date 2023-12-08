@@ -187,13 +187,14 @@ class Racket():
             # weight = 0.1
             # Jwinv = J.T @ np.linalg.pinv(J @ J.T + weight**2 * np.eye(6))
             # qdot = Jwinv @ (V + self.lamb * E)
-            # lams = 50 
-            # q_desired = np.array([0, -math.radians(30), math.radians(30), 0, 0, 0]).reshape(6,1)
-            # q_prev_modified = np.array([0, qlast[1][0], qlast[2][0], 0, 0, 0]).reshape(6,1)
-            # qdot_secondary = lams * (q_desired - q_prev_modified)
-            # qdot_extra = (((np.identity(6) - (Jwinv @ J))) @ qdot_secondary)
-            # qdot = Jwinv @ (V + self.lamb * E) + qdot_extra
-            
+
+            # Range: theta1: does not matter
+            # theta2: -50 to 75
+            # Theta3: 34 to 130 degrees 
+            # theta4: does not matter
+            # theta5: -20 to 20 
+            # theta6: -10 to 42 degrees
+
             weight = 0.5
             Jwinv = J.T @ np.linalg.pinv(J @ J.T + weight**2 * np.eye(6))
             qdot = Jwinv @ (V + self.lamb * E)
@@ -202,6 +203,15 @@ class Racket():
             qdot_secondary = lams * (q_desired)
             qdot_extra = (((np.identity(6) - (Jwinv @ J))) @ qdot_secondary)
             qdot = Jwinv @ (V + self.lamb * E) + qdot_extra
+
+            # const = 0.5
+            # cost_part2 = np.array([self.q[0][0], max(np.abs(self.q[0][0]), self.q[1][0]), 0, 0, 0, 0, 0]).reshape((7, 1))
+            # cost = const * (1 / (self.q[0][0]**2 + self.q[1][0]**2)) * cost_part2
+            # V = np.vstack((vd, wd))
+            # e = np.vstack((ep(pd, P), eR(Rd, R)))
+            # qdot = np.linalg.pinv(J) @ (V + self.lam * e) + ((np.identity(7) - (np.linalg.pinv(J) @ J)) @ cost)
+            # q = qprev + dt * qdot
+            # self.q = q
             
             q = qlast + dt * qdot
             
