@@ -46,7 +46,10 @@ class GeneratorNode(Node):
         # self.trajectory = Trajectory(self)
         self.ball = None
         self.ball_radius = 0.033
-        self.racket = Racket(self)
+        self.ball_period = 1.0
+        self.last_hit = 0.0
+        
+        self.racket = Racket(self, self.ball_period)
         self.jointnames = self.racket.jointnames()
         
         self.max_side = 1.5
@@ -125,6 +128,7 @@ class GeneratorNode(Node):
         # self.goal = np.array([0.5, 1.0, 2.0]).reshape(3, 1)
         # self.goal = np.array([0.5, 1.5, 1.0]).reshape(3,1)
         self.goal = np.array([0.5, 
+        # self.goal = np.array([random.uniform(-self.max_side, self.max_side), 
                               random.uniform(-self.max_side, self.max_side),
                               random.uniform(0.0, self.max_side)]).reshape((3, 1))
         self.goal_marker.pose.position    = Point_from_p(self.goal)
@@ -147,6 +151,7 @@ class GeneratorNode(Node):
             self.ball.shutdown()
             self.ball = None
             self.goal = None
+            self.last_hit = self.t
             return True
 
     # Update - send a new joint command every time step.
@@ -167,7 +172,7 @@ class GeneratorNode(Node):
             self.ball.update(self.t, self.dt, rac_p, rac_orientation_matrix, rac_radius, rac_length)
             if self.check_goal():
                 self.racket.ball_hit = True
-        else:
+        elif self.t - self.last_hit > self.ball_period:
             self.set_goal()
             self.launch_ball()
         # Compute the desired joint positions and velocities for this time.

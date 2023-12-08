@@ -19,7 +19,7 @@ class state(Enum):
     WAITINGINIT = 4
 
 class Racket():
-    def __init__(self, node, goal = None):
+    def __init__(self, node, ball_period, goal = None):
         self.goal = goal
         # Set up the kinematic chain object.
         self.chain = KinematicChain(node, 'world', 'tip', self.jointnames())
@@ -36,6 +36,7 @@ class Racket():
         
         self.target_changed = False
         self.ball_hit = False
+        self.ball_period = ball_period
         
         self.duration = 0.5
         self.last_time = 0
@@ -84,9 +85,10 @@ class Racket():
             self.last_time = t
             self.target_changed = False
         elif self.state == state.WAITINGTARGET and self.ball_hit:
-            self.state = state.WAITINGINIT
+            self.state = state.TOINIT
             self.last_time = t
             self.ball_hit = False
+            self.duration = self.ball_period
             # self.state = state.WAITINGTARGET
         # print(self.state)
             
