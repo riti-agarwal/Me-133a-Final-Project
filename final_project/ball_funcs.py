@@ -36,8 +36,8 @@ class Ball(Node):
         # self.init_v = np.array([0.0, -1.0, 0.0]).reshape(3, 1)
 
         # Specify the random target point
-        x = random.uniform(self.radius, 0.75)
-        y = random.uniform(self.radius, 1.5)
+        x = random.uniform(0.2, 0.9)
+        y = random.uniform(0.2, 0.9)
         z = random.uniform(self.radius, 1.0)
         target_point = np.array([x, y, z]).reshape((3, 1))
 
@@ -136,7 +136,12 @@ class Ball(Node):
         dot = a[0, 0] * b[0, 0] +  a[1, 0] * b[1, 0] + a[2, 0] * b[2, 0]
         td = - dot / (np.linalg.norm(p2 - p1) ** 2)
         p = p1 + td * (p2 - p1)
-        t = (p[1, 0] - self.init_p[1, 0]) / self.init_v[1, 0]
+        if self.init_v[0, 0] != 0 and p[0, 0] - self.init_p[0, 0] != 0:
+            t = (p[0, 0] - self.init_p[0, 0]) / self.init_v[0, 0]
+        elif self.init_v[1, 0] != 0 and p[1, 0] - self.init_p[1, 0] != 0:
+            t = (p[1, 0] - self.init_p[1, 0]) / self.init_v[1, 0]
+        elif self.init_v[2, 0] != 0 and p[2, 0] - self.init_p[2, 0] != 0:
+            t = (p[2, 0] - self.init_p[2, 0]) / self.init_v[2, 0]
         if min_d < given_dist:
             d = min_d
             dt = 1.0 / 1000
@@ -144,12 +149,12 @@ class Ball(Node):
                 t -= dt
                 p = self.init_p + self.init_v * t + self.a * (t ** 2) / 2
                 d = np.linalg.norm(p - given_center)
-            # print("smaller", min_d, d, p, t)
+            print("smaller", min_d, d, p, t)
         # TODO need to generalize
         v = self.init_v + self.a * t
         dir = get_direction_from_v(v)
         # p = self.init_p + self.init_v * t + self.a * (t ** 2) / 2
-        # print("min dist", p, dir, t, np.linalg.norm(p - given_center))
+        print("min dist", p, dir, t, np.linalg.norm(p - given_center))
         return p, dir, t
         
         
