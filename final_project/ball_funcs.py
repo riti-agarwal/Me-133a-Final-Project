@@ -19,7 +19,7 @@ class Ball(Node):
 
         # Initialize the ball position, velocity, set the acceleration.
         self.radius = radius
-        self.side = 6.0 # distance between bounces
+        self.side = 5.0 # distance between bounces
         
         # self.init_p = np.array([0.0, 0.0, self.radius]).reshape((3,1))
         self.init_p = np.array([0.5, 1.0, 1.0]).reshape((3, 1))
@@ -93,7 +93,9 @@ class Ball(Node):
 
     # Update - send a new joint command every time step.
     def update(self, t, dt, rac_p, rac_orientation_matrix, rac_radius, rac_length):
-        if self.p[2, 0] < 0.0 :
+        if self.p[2, 0] < 0.0 or \
+        abs(self.p[0, 0]) + self.radius > self.side / 2.0 or  \
+        abs(self.p[1, 0]) + self.radius > self.side / 2.0:
             if not self.printed:
                 print("ball p", self.p)
                 self.printed = True
@@ -127,9 +129,9 @@ class Ball(Node):
         #     self.p[2,0] = self.radius + (self.radius - self.p[2,0])
         #     # changing the velocity in the z direction, so velocity is in the other direction
         #     self.v[2,0] *= -1.0
-            # print("collision1")
-            # changing the velocity in the x direction
-            # self.v[0,0] *= -1.0   # Change x just for the fun of it!
+        #     print("collision1")
+        #     # changing the velocity in the x direction
+        #     self.v[0,0] *= -1.0   # Change x just for the fun of it!
 
         # Update the ID number to create a new ball and leave the
         # previous balls where they are.

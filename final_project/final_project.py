@@ -126,9 +126,10 @@ class GeneratorNode(Node):
         
         rad = self.ball_radius
         # self.goal = np.array([0.5, 1.0, 2.0]).reshape(3, 1)
-        # self.goal = np.array([0.5, 1.5, 1.0]).reshape(3,1)
-        self.goal = np.array([0.5, 
-        # self.goal = np.array([random.uniform(0.0, self.max_side), 
+        # self.goal = np.array([-0.5, 0.0, 1.0]).reshape(3,1)
+        # self.goal = np.array([0.5, 0.0, 0.0]).reshape(3,1)
+        # self.goal = np.array([0.5, 
+        self.goal = np.array([random.uniform(-self.max_side, self.max_side), 
                               random.uniform(-self.max_side, self.max_side),
                               random.uniform(0.0, self.max_side)]).reshape((3, 1))
         self.goal_marker.pose.position    = Point_from_p(self.goal)
