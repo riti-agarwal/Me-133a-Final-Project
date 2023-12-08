@@ -30,6 +30,9 @@ class Racket():
         # self.R0 = Reye() @ Rotx(-pi/2) @ Roty(-pi/2)
         self.R0 = Reye()
         
+        self.p_prev = self.p0
+        self.R_prev = self.R0
+        
         # TODO from ball trajectory, get position and normal orientation
         self.p_target = np.array([0.5, 0.5, 0.15]).reshape((-1,1))
         self.r_target = Reye() @ Rotx(-pi/2) @ Roty(-pi/2)
@@ -84,11 +87,15 @@ class Racket():
             self.state = state.TOTARGET
             self.last_time = t
             self.target_changed = False
+            self.p_prev = self.p
+            self.R_prev = self.R
         elif self.state == state.WAITINGTARGET and self.ball_hit:
             self.state = state.WAITINGINIT
             self.last_time = t
             self.ball_hit = False
             self.duration = self.ball_period
+            self.p_prev = self.p
+            self.R_prev = self.R
             # self.state = state.WAITINGTARGET
         # print(self.state)
             
@@ -122,9 +129,9 @@ class Racket():
                     qdot = np.zeros((6, 1))
                     self.state = state.WAITINGTARGET
                     return (q.flatten().tolist(), qdot.flatten().tolist())
-                p0 = self.p0
+                p0 = self.p_prev
                 pf = self.p_target
-                r0 = self.R0
+                r0 = self.R_prev
                 rf = self.r_target
             elif self.state == state.TOINIT:
                 if t - self.last_time > self.duration:

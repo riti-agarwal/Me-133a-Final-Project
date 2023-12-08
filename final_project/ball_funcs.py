@@ -59,6 +59,7 @@ class Ball(Node):
         # self.dt    = 1.0 / float(rate)
         # self.t     = -self.dt
         self.start = start
+        self.printed = False
 
         # Create a timer to keep calling update().
         # self.create_timer(self.dt, self.update)
@@ -93,6 +94,9 @@ class Ball(Node):
     # Update - send a new joint command every time step.
     def update(self, t, dt, rac_p, rac_orientation_matrix, rac_radius, rac_length):
         if self.p[2, 0] < 0.0 :
+            if not self.printed:
+                print("ball p", self.p)
+                self.printed = True
             return None
         # Integrate the velocity, then the position.
         
