@@ -36,19 +36,19 @@ class Ball(Node):
         # self.init_v = np.array([0.0, -1.0, 0.0]).reshape(3, 1)
 
         # Specify the random target point
-        x = random.uniform(0.2, 0.9)
-        y = random.uniform(0.2, 0.9)
-        z = random.uniform(self.radius, 1.0)
+        x = random.uniform(0.4, 0.9)
+        y = random.uniform(0.4, 0.9)
+        z = random.uniform(0.2, 1.0)
         target_point = np.array([x, y, z]).reshape((3, 1))
 
         # Set random initial position
-        x_cord = random.uniform(self.radius, 2.0)
-        y_cord = random.uniform(self.radius, 2.0)
-        z_cord = random.uniform(self.radius, 2.0)
+        x_cord = random.uniform(0.4, 2.0)
+        y_cord = random.uniform(0.4, 2.0)
+        z_cord = random.uniform(0.2, 2.0)
         self.init_p = np.array([x_cord, y_cord, z_cord]).reshape((3, 1))
 
         direction_vector = target_point - self.init_p
-        random_velocity_magnitude = random.uniform(0.5, 2.0)
+        random_velocity_magnitude = random.uniform(0.5, 1.5)
         self.init_v = (direction_vector / np.linalg.norm(direction_vector)) * random_velocity_magnitude
 
         self.p = self.init_p
@@ -166,8 +166,8 @@ class Ball(Node):
         #         print("ball p", self.p)
         #         self.printed = True
         #     # return None
-        if self.p[2, 0] < 0.0 or \
-        abs(self.p[0, 0]) + self.radius > self.side / 2.0 or  \
+        # if self.p[2, 0] < 0.0 or \
+        if abs(self.p[0, 0]) + self.radius > self.side / 2.0 or  \
         abs(self.p[1, 0]) + self.radius > self.side / 2.0:
             if not self.printed:
                 print("ball p", self.p)
