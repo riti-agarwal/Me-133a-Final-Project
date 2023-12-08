@@ -196,14 +196,15 @@ class Racket():
             # theta5: -20 to 20 
             # theta6: -10 to 42 degrees
 
-            # weight = 0.5
-            # Jwinv = J.T @ np.linalg.pinv(J @ J.T + weight**2 * np.eye(6))
-            # qdot = Jwinv @ (V + self.lamb * E)
-            # lams = 20 
-            # q_desired = np.array([0, -math.radians(30), math.radians(30), 0, 1.5, 0]).reshape(6,1)
-            # qdot_secondary = lams * (q_desired - qlast)
-            # qdot_extra = (((np.identity(6) - (Jwinv @ J))) @ qdot_secondary)
-            # qdot = Jwinv @ (V + self.lamb * E) + qdot_extra
+            weight = 0.5
+            Jwinv = J.T @ np.linalg.pinv(J @ J.T + weight**2 * np.eye(6))
+            qdot = Jwinv @ (V + self.lamb * E)
+            lams = 20 
+            q_desired = np.array([0, -math.radians(30), math.radians(30), 0, 0, 0]).reshape(6,1)
+            q_desired[0][0] = 0
+            qdot_secondary = lams * (q_desired - qlast)
+            qdot_extra = (((np.identity(6) - (Jwinv @ J))) @ qdot_secondary)
+            qdot = Jwinv @ (V + self.lamb * E) + qdot_extra
 
             # const = 0.5
             # cost_part2 = np.array([self.q[0][0], max(np.abs(self.q[0][0]), self.q[1][0]), 0, 0, 0, 0, 0]).reshape((7, 1))
