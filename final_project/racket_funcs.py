@@ -69,16 +69,23 @@ class Racket():
             des_z = (ball_d + to_goal) / 2
             if np.linalg.norm(des_z) == 0:
                 des_z = -ey()
+            # des_z = np.array([1.0, -1.0, 0.0]).reshape((3,1))
             print("z", des_z, ball_d, to_goal)
             des_z = get_direction_from_v(des_z)
-            curr_x = get_direction_from_v(self.R @ ex())
-            des_y = get_direction_from_v(cross(des_z, curr_x))
-            self.r_target = Rot_from_xyz(x=curr_x, y =des_y, z=des_z)
+            # curr_x = get_direction_from_v(self.R @ ex())
+            
+            des_x = get_direction_from_v(self.R @ ex())
+            # des_x = get_direction_from_v(np.array([0.5, 0.5, 0]).reshape((3, 1)))
+            des_y = get_direction_from_v(cross(des_z, des_x))
+            des_x = get_direction_from_v(cross(des_y, des_z))
+            self.r_target = Rot_from_xyz(x=des_x, y =des_y, z=des_z)
             # self.r_target = Rotx(r_vec[0, 0]) @ Roty(r_vec[1, 0]) @ Rotz(r_vec[2, 0])
             self.p_target = self.p_target + pe(des_z, ball.radius)
+            
         # TODO within ball trajectory
         self.target_changed = True
         self.duration = t - 0.1
+        # self.duration = 2.5
         self.checkwaiting(time)
         
         print("target", self.p_target, self.r_target, t)
