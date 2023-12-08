@@ -22,7 +22,7 @@ class Ball(Node):
         self.side = 6.0 # distance between bounces
         
         # self.init_p = np.array([0.0, 0.0, self.radius]).reshape((3,1))
-        self.init_p = np.array([0.5, 1.0, 1.0]).reshape((3, 1))
+        self.init_p = np.array([0.5, 1.0, 0.3]).reshape((3, 1))
         # self.init_v = np.array([-1.0, -0.1,  5.0       ]).reshape((3,1))
         self.init_v = np.array([0.0, -2.0, 0.0]).reshape(3, 1)
 
