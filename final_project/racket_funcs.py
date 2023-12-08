@@ -86,7 +86,7 @@ class Racket():
             
         # TODO within ball trajectory
         self.target_changed = True
-        self.duration = t - 0.1
+        self.duration = t / 3.0 * 2.0
         # self.duration = 2.5
         self.checkwaiting(time)
         

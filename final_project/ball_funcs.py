@@ -24,13 +24,14 @@ class Ball(Node):
         
         # self.init_p = np.array([0.0, 0.0, self.radius]).reshape((3,1))
         # x,y,z random position
-        x_cord = random.uniform(self.radius, 1.0)
-        y_cord = random.uniform(self.radius, 1.5)
-        z_cord = random.uniform(self.radius, 1.5)
+        x_cord = random.uniform(self.radius, 0.75)
+        # y_cord = random.uniform(self.radius, 1.5)
+        y_cord = 1.5
+        z_cord = random.uniform(self.radius, 1.0)
         self.init_p = np.array([x_cord, y_cord, z_cord]).reshape((3, 1))
         # self.init_p = np.array([0.5, 1.0, 0.3]).reshape((3, 1))
         # self.init_v = np.array([-1.0, -0.1,  5.0       ]).reshape((3,1))
-        self.init_v = np.array([0.0, -2.0, 0.0]).reshape(3, 1)
+        self.init_v = np.array([0.0, -1.0, 0.0]).reshape(3, 1)
 
         self.p = self.init_p
         self.v = self.init_v
@@ -121,7 +122,7 @@ class Ball(Node):
         closest_point_on_racket_global = rac_orientation_matrix @ closest_point_on_racket_local + rac_p
         if np.linalg.norm(self.p - closest_point_on_racket_global) < self.radius + rac_length:
             if not self.printed:
-                print("ball p", self.p)
+                print("ball p", self.p, "racket p", closest_point_on_racket_local)
                 self.printed = True
             # return None
             self.v = rac_orientation_matrix @ (np.array([[1, 0, 0], [0, 1, 0], [0, 0, -1]])).reshape(3,3) @ rac_orientation_matrix.T @ self.v

@@ -46,7 +46,7 @@ class GeneratorNode(Node):
         # self.trajectory = Trajectory(self)
         self.ball = None
         self.ball_radius = 0.033
-        self.ball_period = 1.0
+        self.ball_period = 0.5
         self.last_hit = 0.0
         self.num_balls = 0
         
