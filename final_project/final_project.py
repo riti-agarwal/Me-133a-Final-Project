@@ -150,7 +150,7 @@ class GeneratorNode(Node):
     def check_goal(self):
         # TODO need to check
         ball_p = self.ball.get_position()
-        e = self.ball.radius + self.goal_diam / 2
+        e = self.ball.radius + self.goal_diam
         if np.linalg.norm(self.goal - ball_p) < e:
             self.goal_marker.action = Marker.DELETE
             print("hit goal", self.num_balls)
