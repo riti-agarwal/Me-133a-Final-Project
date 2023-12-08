@@ -24,12 +24,12 @@ class Ball(Node):
         
         # self.init_p = np.array([0.0, 0.0, self.radius]).reshape((3,1))
         # x,y,z random position
-        # x_cord = random.uniform(self.radius, 0.75)
-        x_cord = 0.7
+        x_cord = random.uniform(self.radius, 0.75)
+        # x_cord = 0.7
         # y_cord = random.uniform(self.radius, 1.5)
         y_cord = 1.5
-        # z_cord = random.uniform(self.radius, 1.0)
-        z_cord = 0.2
+        z_cord = random.uniform(self.radius, 1.0)
+        # z_cord = 0.2
         self.init_p = np.array([x_cord, y_cord, z_cord]).reshape((3, 1))
         # self.init_p = np.array([0.5, 1.0, 0.3]).reshape((3, 1))
         # self.init_v = np.array([-1.0, -0.1,  5.0       ]).reshape((3,1))
@@ -102,6 +102,11 @@ class Ball(Node):
 
     # Update - send a new joint command every time step.
     def update(self, t, dt, rac_p, rac_orientation_matrix, rac_radius, rac_length):
+        # if self.p[1, 0] < 0.0:
+        #     if not self.printed:
+        #         print("ball p", self.p)
+        #         self.printed = True
+        #     # return None
         if self.p[2, 0] < 0.0 or \
         abs(self.p[0, 0]) + self.radius > self.side / 2.0 or  \
         abs(self.p[1, 0]) + self.radius > self.side / 2.0:
@@ -111,7 +116,6 @@ class Ball(Node):
             return None
         # Integrate the velocity, then the position.
         
-
         # Transform ball position to racket's local coordinates
         ball_p_local = rac_orientation_matrix.T @ (self.p - rac_p)
 

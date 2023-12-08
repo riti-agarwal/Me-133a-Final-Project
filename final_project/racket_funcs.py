@@ -48,10 +48,13 @@ class Racket():
 
         self.rac_radius = 0.1
         self.rac_length = 0.01
-        self.lamb = 100
+        self.lamb = 20
         self.q  = self.q0
         self.p = self.p0
         self.R = self.R0
+        
+        self.shoulder = np.array([0.0, 0.0, 0.6]).reshape((-1, 1))
+        self.link_dist = 0.8
 
     # Declare the joint names.
     def jointnames(self):
@@ -65,16 +68,18 @@ class Racket():
             self.r_target = Rotx(ball_d[0, 0]) @ Roty(ball_d[1, 0]) @ Rotz(ball_d[2, 0])
         else:
             to_goal = get_direction_from_v(ball_p - self.goal)
-            # r_vec = cross(to_goal, ball_d) 
             des_z = (ball_d + to_goal) / 2
             if np.linalg.norm(des_z) == 0:
                 des_z = -ey()
             # des_z = np.array([1.0, -1.0, 0.0]).reshape((3,1))
             # print("z", des_z, ball_d, to_goal)
             des_z = get_direction_from_v(des_z)
-            # curr_x = get_direction_from_v(self.R @ ex())
             
-            des_x = get_direction_from_v(self.R @ ex())
+            if np.linalg.norm(self.shoulder - ball_p) > self.link_dist * 0.8:
+                des_y = -get_direction_from_v(self.shoulder - ball_p)
+                des_x = get_direction_from_v(cross(des_y, des_z))
+            else:
+                des_x = get_direction_from_v(self.R @ ex())
             # des_x = get_direction_from_v(np.array([0.5, 0.5, 0]).reshape((3, 1)))
             des_y = get_direction_from_v(cross(des_z, des_x))
             des_x = get_direction_from_v(cross(des_y, des_z))
@@ -83,7 +88,7 @@ class Racket():
             # self.p_target = self.p_target + pe(des_z, ball.radius)
                             # + pe(des_y, ball.radius) \
                             # + pe(des_x, ball.radius)
-            
+            # self.r_target = Reye() @ Rotx(pi/2) @ Rotz(-pi/2)
         # TODO within ball trajectory
         self.target_changed = True
         self.duration = t * (0.75)
@@ -180,13 +185,9 @@ class Racket():
             # qdot = np.linalg.pinv(J) @ (V + self.lamb * E)
 
             # This is with smoother singularities, no wanted position of the arm
-            # weight = 0.1
-            # Jwinv = J.T @ np.linalg.pinv(J @ J.T + weight**2 * np.eye(6))
-            # qdot = Jwinv @ (V + self.lamb * E)
-
-            # weight = 0.1
-            # Jwinv = J.T @ np.linalg.pinv(J @ J.T + weight**2 * np.eye(6))
-            # qdot = Jwinv @ (V + self.lamb * E)
+            weight = 0.1
+            Jwinv = J.T @ np.linalg.pinv(J @ J.T + weight**2 * np.eye(6))
+            qdot = Jwinv @ (V + self.lamb * E)
 
             # Range: theta1: does not matter
             # theta2: -50 to 75
@@ -195,14 +196,14 @@ class Racket():
             # theta5: -20 to 20 
             # theta6: -10 to 42 degrees
 
-            weight = 0.5
-            Jwinv = J.T @ np.linalg.pinv(J @ J.T + weight**2 * np.eye(6))
-            qdot = Jwinv @ (V + self.lamb * E)
-            lams = 20 
-            q_desired = np.array([0, -math.radians(30), math.radians(30), 0, 0, 0]).reshape(6,1)
-            qdot_secondary = lams * (q_desired)
-            qdot_extra = (((np.identity(6) - (Jwinv @ J))) @ qdot_secondary)
-            qdot = Jwinv @ (V + self.lamb * E) + qdot_extra
+            # weight = 0.5
+            # Jwinv = J.T @ np.linalg.pinv(J @ J.T + weight**2 * np.eye(6))
+            # qdot = Jwinv @ (V + self.lamb * E)
+            # lams = 20 
+            # q_desired = np.array([0, -math.radians(30), math.radians(30), 0, 1.5, 0]).reshape(6,1)
+            # qdot_secondary = lams * (q_desired - qlast)
+            # qdot_extra = (((np.identity(6) - (Jwinv @ J))) @ qdot_secondary)
+            # qdot = Jwinv @ (V + self.lamb * E) + qdot_extra
 
             # const = 0.5
             # cost_part2 = np.array([self.q[0][0], max(np.abs(self.q[0][0]), self.q[1][0]), 0, 0, 0, 0, 0]).reshape((7, 1))
