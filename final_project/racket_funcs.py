@@ -196,7 +196,8 @@ class Racket():
             qdot = Jwinv @ (V + self.lamb * E)
             lams = 20 
             q_desired = np.array([0, -math.radians(30), math.radians(30), 0, 0, 0]).reshape(6,1)
-            qdot_secondary = lams * (q_desired)
+            q_desired[0][0] = 0
+            qdot_secondary = lams * (q_desired - qlast)
             qdot_extra = (((np.identity(6) - (Jwinv @ J))) @ qdot_secondary)
             qdot = Jwinv @ (V + self.lamb * E) + qdot_extra
 
