@@ -22,18 +22,34 @@ class Ball(Node):
         self.radius = radius
         self.side = 5.0 # distance between bounces
         
-        # self.init_p = np.array([0.0, 0.0, self.radius]).reshape((3,1))
-        # x,y,z random position
-        # x_cord = random.uniform(self.radius, 0.75)
-        x_cord = 0.7
-        # y_cord = random.uniform(self.radius, 1.5)
-        y_cord = 1.5
-        # z_cord = random.uniform(self.radius, 1.0)
-        z_cord = 0.2
+        # # self.init_p = np.array([0.0, 0.0, self.radius]).reshape((3,1))
+        # # x,y,z random position
+        # # x_cord = random.uniform(self.radius, 0.75)
+        # x_cord = 0.7
+        # # y_cord = random.uniform(self.radius, 1.5)
+        # y_cord = 1.5
+        # # z_cord = random.uniform(self.radius, 1.0)
+        # z_cord = 0.2
+        # self.init_p = np.array([x_cord, y_cord, z_cord]).reshape((3, 1))
+        # # self.init_p = np.array([0.5, 1.0, 0.3]).reshape((3, 1))
+        # # self.init_v = np.array([-1.0, -0.1,  5.0       ]).reshape((3,1))
+        # self.init_v = np.array([0.0, -1.0, 0.0]).reshape(3, 1)
+
+        # Specify the random target point
+        x = random.uniform(self.radius, 0.75)
+        y = random.uniform(self.radius, 1.5)
+        z = random.uniform(self.radius, 1.0)
+        target_point = np.array([x, y, z]).reshape((3, 1))
+
+        # Set random initial position
+        x_cord = random.uniform(self.radius, 2.0)
+        y_cord = random.uniform(self.radius, 2.0)
+        z_cord = random.uniform(self.radius, 2.0)
         self.init_p = np.array([x_cord, y_cord, z_cord]).reshape((3, 1))
-        # self.init_p = np.array([0.5, 1.0, 0.3]).reshape((3, 1))
-        # self.init_v = np.array([-1.0, -0.1,  5.0       ]).reshape((3,1))
-        self.init_v = np.array([0.0, -1.0, 0.0]).reshape(3, 1)
+
+        direction_vector = target_point - self.init_p
+        random_velocity_magnitude = random.uniform(0.5, 2.0)
+        self.init_v = (direction_vector / np.linalg.norm(direction_vector)) * random_velocity_magnitude
 
         self.p = self.init_p
         self.v = self.init_v
