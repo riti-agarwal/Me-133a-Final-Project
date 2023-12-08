@@ -48,6 +48,7 @@ class GeneratorNode(Node):
         self.ball_radius = 0.033
         self.ball_period = 1.0
         self.last_hit = 0.0
+        self.num_balls = 0
         
         self.racket = Racket(self, self.ball_period)
         self.jointnames = self.racket.jointnames()
@@ -106,6 +107,7 @@ class GeneratorNode(Node):
         self.ball = Ball('balldemo', self.start, self.ball_radius)
         self.mark.markers.append(self.ball.marker)
         self.racket.set_racket_target(self.ball, self.t)
+        self.num_balls += 1
         
     def set_goal(self):
         # self.goal = np.array([random.uniform(-self.max_side, self.max_side),
@@ -122,12 +124,15 @@ class GeneratorNode(Node):
         self.goal_marker.pose.orientation = Quaternion()
         
         self.goal_marker.scale            = Vector3(x = self.goal_diam, y = self.goal_diam, z = self.goal_diam)
-        self.goal_marker.color            = ColorRGBA(r=1.0, g=0.0, b=0.0, a=0.8)
+        self.goal_marker.color            = ColorRGBA(r=0.0, g=0.0, b=1.0, a=0.8)
         
         rad = self.ball_radius
         # self.goal = np.array([0.5, 1.0, 2.0]).reshape(3, 1)
         # self.goal = np.array([-0.5, 0.0, 1.0]).reshape(3,1)
-        # self.goal = np.array([0.5, 0.0, 0.0]).reshape(3,1)
+#         self.goal = np.array([[[ 0.82846939],
+#  [-0.5390879 ],
+#  [ 0.36994566]]]).reshape(3,1)
+
         # self.goal = np.array([0.5, 
         self.goal = np.array([random.uniform(-self.max_side, self.max_side), 
                               random.uniform(-self.max_side, self.max_side),
@@ -148,7 +153,7 @@ class GeneratorNode(Node):
         e = self.ball.radius + self.goal_diam / 2
         if np.linalg.norm(self.goal - ball_p) < e:
             self.goal_marker.action = Marker.DELETE
-            print("hit goal")
+            print("hit goal", self.num_balls)
             self.ball.shutdown()
             self.ball = None
             self.goal = None

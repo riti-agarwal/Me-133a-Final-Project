@@ -61,7 +61,7 @@ class Racket():
     def set_racket_target(self, ball, time):
         ball_p, ball_d, t = ball.get_pd_at_y(given_y = 0)
         self.p_target = ball_p
-        if self.goal.all() == None:
+        if self.goal is None:
             self.r_target = Rotx(ball_d[0, 0]) @ Roty(ball_d[1, 0]) @ Rotz(ball_d[2, 0])
         else:
             to_goal = get_direction_from_v(ball_p - self.goal)
@@ -70,7 +70,7 @@ class Racket():
             if np.linalg.norm(des_z) == 0:
                 des_z = -ey()
             # des_z = np.array([1.0, -1.0, 0.0]).reshape((3,1))
-            print("z", des_z, ball_d, to_goal)
+            # print("z", des_z, ball_d, to_goal)
             des_z = get_direction_from_v(des_z)
             # curr_x = get_direction_from_v(self.R @ ex())
             
@@ -80,7 +80,9 @@ class Racket():
             des_x = get_direction_from_v(cross(des_y, des_z))
             self.r_target = Rot_from_xyz(x=des_x, y =des_y, z=des_z)
             # self.r_target = Rotx(r_vec[0, 0]) @ Roty(r_vec[1, 0]) @ Rotz(r_vec[2, 0])
-            self.p_target = self.p_target + pe(des_z, ball.radius)
+            # self.p_target = self.p_target + pe(des_z, ball.radius)
+                            # + pe(des_y, ball.radius) \
+                            # + pe(des_x, ball.radius)
             
         # TODO within ball trajectory
         self.target_changed = True
@@ -88,7 +90,7 @@ class Racket():
         # self.duration = 2.5
         self.checkwaiting(time)
         
-        print("target", self.p_target, self.r_target, t)
+        print("target", ball_p, self.p_target, self.r_target, t)
     
     def checkwaiting(self, t):
         if self.state == state.WAITINGINIT and self.target_changed:
@@ -178,19 +180,19 @@ class Racket():
             # qdot = np.linalg.pinv(J) @ (V + self.lamb * E)
 
             # This is with smoother singularities, no wanted position of the arm
-            # weight = 0.1
-            # Jwinv = J.T @ np.linalg.pinv(J @ J.T + weight**2 * np.eye(6))
-            # qdot = Jwinv @ (V + self.lamb * E)
-
             weight = 0.1
             Jwinv = J.T @ np.linalg.pinv(J @ J.T + weight**2 * np.eye(6))
             qdot = Jwinv @ (V + self.lamb * E)
-            lams = 50 
-            q_desired = np.array([0, -math.radians(30), math.radians(30), 0, 0, 0]).reshape(6,1)
-            q_prev_modified = np.array([0, qlast[1][0], qlast[2][0], 0, 0, 0]).reshape(6,1)
-            qdot_secondary = lams * (q_desired - q_prev_modified)
-            qdot_extra = (((np.identity(6) - (Jwinv @ J))) @ qdot_secondary)
-            qdot = Jwinv @ (V + self.lamb * E) + qdot_extra
+
+            # weight = 0.1
+            # Jwinv = J.T @ np.linalg.pinv(J @ J.T + weight**2 * np.eye(6))
+            # qdot = Jwinv @ (V + self.lamb * E)
+            # lams = 50 
+            # q_desired = np.array([0, -math.radians(30), math.radians(30), 0, 0, 0]).reshape(6,1)
+            # q_prev_modified = np.array([0, qlast[1][0], qlast[2][0], 0, 0, 0]).reshape(6,1)
+            # qdot_secondary = lams * (q_desired - q_prev_modified)
+            # qdot_extra = (((np.identity(6) - (Jwinv @ J))) @ qdot_secondary)
+            # qdot = Jwinv @ (V + self.lamb * E) + qdot_extra
             
             q = qlast + dt * qdot
             

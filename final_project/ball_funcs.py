@@ -85,7 +85,7 @@ class Ball(Node):
     def get_pd_at_y(self, given_y = 0):
         # p = p0 + v0t + 1/2 a t^2
         # given_y = y0 + vy0 t
-        t = (given_y - self.init_p[1, 0]) / self.init_v[1, 0]
+        t = ((given_y  + self.radius) - self.init_p[1, 0]) / self.init_v[1, 0]
         v = self.init_v + self.a * t
         d = get_direction_from_v(v)
         p = self.init_p + self.init_v * t + self.a * (t ** 2) / 2
@@ -113,8 +113,10 @@ class Ball(Node):
 
         # Transform the closest point back to global coordinates
         closest_point_on_racket_global = rac_orientation_matrix @ closest_point_on_racket_local + rac_p
-        # if np.linalg.norm(self.p - rac_p) < self.radius + racket_collision_distance:
         if np.linalg.norm(self.p - closest_point_on_racket_global) < self.radius + rac_length:
+            if not self.printed:
+                print("ball p", self.p)
+                self.printed = True
             # return None
             self.v = rac_orientation_matrix @ (np.array([[1, 0, 0], [0, 1, 0], [0, 0, -1]])).reshape(3,3) @ rac_orientation_matrix.T @ self.v
             self.p = self.p + self.v * dt
