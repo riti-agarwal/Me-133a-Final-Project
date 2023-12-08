@@ -86,7 +86,7 @@ class Racket():
             
         # TODO within ball trajectory
         self.target_changed = True
-        self.duration = t / 3.0 * 2.0
+        self.duration = t * (0.75)
         # self.duration = 2.5
         self.checkwaiting(time)
         
@@ -184,6 +184,10 @@ class Racket():
             # Jwinv = J.T @ np.linalg.pinv(J @ J.T + weight**2 * np.eye(6))
             # qdot = Jwinv @ (V + self.lamb * E)
 
+            # weight = 0.1
+            # Jwinv = J.T @ np.linalg.pinv(J @ J.T + weight**2 * np.eye(6))
+            # qdot = Jwinv @ (V + self.lamb * E)
+
             # Range: theta1: does not matter
             # theta2: -50 to 75
             # Theta3: 34 to 130 degrees 
@@ -216,8 +220,6 @@ class Racket():
             self.q = q
             self.p = p
             self.R = R
-            
-            # TODO Add secondary tasks 
 
         # Return the position and velocity as python lists.
         return (q.flatten().tolist(), qdot.flatten().tolist())
