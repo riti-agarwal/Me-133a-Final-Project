@@ -48,7 +48,7 @@ class Racket():
 
         self.rac_radius = 0.1
         self.rac_length = 0.01
-        self.lamb = 70
+        self.lamb = 50
         self.q  = self.q0
         self.p = self.p0
         self.R = self.R0
@@ -108,6 +108,7 @@ class Racket():
             self.R_prev = self.R
         elif self.state == state.WAITINGTARGET and self.ball_hit:
             self.state = state.WAITINGINIT
+            # self.state = state.TOINIT
             self.last_time = t
             self.ball_hit = False
             self.duration = self.ball_period
@@ -162,25 +163,64 @@ class Racket():
                 r0 = self.r_target
                 rf = self.R0
                 
+
+            # working kinematics over specfified 
+            # t = fmod(t - self.last_time, self.duration)  
+            # # t = t - self.last_time
+            # e = ex() + ey() + ez()
+            # alpha = pi / 2
+            
+            # (s0, s0dot) = goto(t, self.duration, 0.0, 1.0)
+
+            # pd = p0 + (pf - p0) * s0
+            # vd =      (p0 - pf) * s0dot
+
+            # Rd = r0 @ (s0 * np.linalg.inv(r0)) @ rf
+            # alphadot = alpha * s0dot
+            # wd = alphadot * e
+
+            # qlast = self.q
+            # (p, R, Jv, Jw) = self.chain.fkin(qlast)
+            # J = np.vstack((Jv, Jw))
+            # V = np.vstack((vd, wd))
+            # E = np.vstack((ep(pd, p), eR(Rd, R)))
+
+            # START WORKING HERE
+
             t = fmod(t - self.last_time, self.duration)  
-            # t = t - self.last_time
-            e = ex() + ey() + ez()
-            alpha = pi / 2
+            # alpha = pi / 2
             
             (s0, s0dot) = goto(t, self.duration, 0.0, 1.0)
 
             pd = p0 + (pf - p0) * s0
             vd =      (p0 - pf) * s0dot
 
-            Rd = r0 @ (s0 * np.linalg.inv(r0)) @ rf
-            alphadot = alpha * s0dot
-            wd = alphadot * e
+            # alphadot = alpha * s0dot
 
             qlast = self.q
+            Rlast = self.R
+            nf = rf[:, -1]
+            n0 = Rlast[:, -1]
+            a = np.cross(n0, nf).reshape(3,1)
+            axis = a / np.linalg.norm(a)
+            theta_f = np.arcsin(np.linalg.norm(a))
+            # wd has to be 3,1 matrix, and i drop the last row? 
+            wd = axis * (theta_f * s0dot)
+            wd = wd[:-1, :]
+            nd = (Rote(axis, (theta_f * s0)) @ n0)
             (p, R, Jv, Jw) = self.chain.fkin(qlast)
-            J = np.vstack((Jv, Jw))
+            Jw_padel = R.T @ Jw
+            # Here I am dropping the last row. 
+            Jw_padel = Jw_padel[:-1, :]
+            J = np.vstack((Jv, Jw_padel))
             V = np.vstack((vd, wd))
-            E = np.vstack((ep(pd, p), eR(Rd, R)))
+            n = (R[:, -1])
+            # does en also lose its last row?
+            en = np.cross(nd, n).reshape(3,1)
+            en = en[:-1, :]
+            E = np.vstack((ep(pd, p), en))
+            print(V.shape)
+            print(E.shape)
 
 
             # This is with multiple singularities
@@ -188,7 +228,7 @@ class Racket():
 
             # This is with smoother singularities, no wanted position of the arm
             weight = 0.1
-            Jwinv = J.T @ np.linalg.pinv(J @ J.T + weight**2 * np.eye(6))
+            Jwinv = J.T @ np.linalg.pinv(J @ J.T + weight**2 * np.eye(5))
             qdot = Jwinv @ (V + self.lamb * E)
 
             # Range: theta1: does not matter
@@ -198,24 +238,24 @@ class Racket():
             # theta5: -20 to 20 
             # theta6: -10 to 42 degrees
 
-            # weight = 0.5
-            # Jwinv = J.T @ np.linalg.pinv(J @ J.T + weight**2 * np.eye(6))
-            # qdot = Jwinv @ (V + self.lamb * E)
-            # lams = 20 
+            # weight = 0.1
+
+            # Jwinv = np.linalg.pinv((np.transpose(J) @ J) + (weight**2 * np.identity(6))) @ np.transpose(J)
             # q_desired = np.array([0, -math.radians(30), math.radians(30), 0, 0, 0]).reshape(6,1)
-            # q_desired[0][0] = 0
-            # qdot_secondary = lams * (q_desired - qlast)
+            # qlast_modified = np.array([0, qlast[1][0], qlast[2][0], 0, 0, 0]).reshape(6,1)
+            # new_lam = 20
+            # qdot_secondary = new_lam * (q_desired - qlast_modified)
             # qdot_extra = (((np.identity(6) - (Jwinv @ J))) @ qdot_secondary)
             # qdot = Jwinv @ (V + self.lamb * E) + qdot_extra
 
-            # const = 0.5
-            # cost_part2 = np.array([self.q[0][0], max(np.abs(self.q[0][0]), self.q[1][0]), 0, 0, 0, 0, 0]).reshape((7, 1))
-            # cost = const * (1 / (self.q[0][0]**2 + self.q[1][0]**2)) * cost_part2
-            # V = np.vstack((vd, wd))
-            # e = np.vstack((ep(pd, P), eR(Rd, R)))
-            # qdot = np.linalg.pinv(J) @ (V + self.lam * e) + ((np.identity(7) - (np.linalg.pinv(J) @ J)) @ cost)
-            # q = qprev + dt * qdot
-            # self.q = q
+            # Part (c): secondary task as goal
+            # lams = 10.0
+            # qc = np.radians(np.array([0,-30,30,0,0,0]).reshape((6,1)))
+            # qlast_modified = np.array([0, qlast[1][0], qlast[2][0], 0, 0, 0]).reshape(6,1)
+            # qsdot = lams * (qc - qlast_modified)
+            # qdot_extra = (((np.identity(6) - (np.linalg.pinv(J) @ J))) @ qsdot)
+            # qdot = np.linalg.pinv(J) @ (V + self.lamb * E) + qdot_extra
+
             
             q = qlast + dt * qdot
             

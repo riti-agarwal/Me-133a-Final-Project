@@ -118,7 +118,7 @@ class Ball(Node):
         return p, d, t
     
     # Not considering acceleration
-    def get_pd_at_dist(self, given_dist = 0.75, given_center = np.array([0.0, 0.0, 0.0]).reshape(-1, 1)):
+    def get_pd_at_dist(self, given_dist = 0.70, given_center = np.array([0.0, 0.0, 0.0]).reshape(-1, 1)):
         # p = p0 + v0t
         # dist(p - given_center) == given_dist
         # (p0[0] + v0[0] t - c[0])^2 + ... = gd ^ 2
