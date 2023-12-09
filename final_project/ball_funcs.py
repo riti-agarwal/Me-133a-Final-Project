@@ -36,8 +36,8 @@ class Ball(Node):
         # self.init_v = np.array([0.0, -1.0, 0.0]).reshape(3, 1)
 
         # Specify the random target point
-        x = random.uniform(0.4, 0.9)
-        y = random.uniform(0.4, 0.9)
+        x = random.uniform(0.4, 0.8)
+        y = random.uniform(0.4, 0.8)
         z = random.uniform(0.2, 1.0)
         target_point = np.array([x, y, z]).reshape((3, 1))
 
